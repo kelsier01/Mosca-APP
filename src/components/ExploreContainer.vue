@@ -1,39 +1,22 @@
 <template>
-  <div id="container">
-    <strong>{{ name }}</strong>
-    <p>Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <ion-card>
+    <img alt="Silhouette of mountains" src="https://upload.wikimedia.org/wikipedia/commons/8/81/Fly_October_2008-4.jpg"/>
+    <ion-card-header>
+      <ion-card-title>Card Title</ion-card-title>
+      <ion-card-subtitle>Card Subtitle</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      Here's a small text description
+    </ion-card-content>
+  </ion-card>
 </template>
 
-<script setup lang="ts">
-defineProps({
-  name: String,
-});
+<script lang="ts">
+  import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/vue';
+  import { defineComponent } from 'vue';
+
+  export default defineComponent({
+    components: { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle },
+  });
 </script>
-
-<style scoped>
-#container {
-  text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  color: #8c8c8c;
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-</style>
