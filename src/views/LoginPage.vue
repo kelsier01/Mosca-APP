@@ -30,7 +30,9 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton } from '@ionic/vue';
+  import axios from 'axios';
   
+  const URL_API = import.meta.env.VITE_URL_API;
   // Variables reactivas para el correo y la contraseña
   const email = ref('');
   const password = ref('');
@@ -43,7 +45,12 @@
     if (email.value && password.value) {
       console.log(`Email: ${email.value}, Password: ${password.value}`);
       // Aquí iría la lógica de autenticación (por ejemplo, llamar a una API)
-      router.push('/tabs/tab1');
+      axios.post(`${URL_API}/auth/login`, { email: email.value, password: password.value })
+        .then((response) => {
+          if(response.status === 200){
+            router.push('/tabs/tab1');
+          }
+        });
     } else {
       alert('Por favor completa ambos campos');
     }
@@ -63,4 +70,3 @@
     max-width: 400px;
   }
   </style>
-  

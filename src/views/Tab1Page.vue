@@ -17,15 +17,20 @@
       </ion-header>
       
       <ion-grid>
-        <ion-row>
-          <ion-col  size="12" size-md="4"><ExploreContainer /></ion-col>
-          <ion-col  size="12" size-md="4"><ExploreContainer /></ion-col>
-          <ion-col  size="12" size-md="4"><ExploreContainer /></ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col  size="12" size-md="4"><ExploreContainer /></ion-col>
-          <ion-col  size="12" size-md="4"><ExploreContainer /></ion-col>
-          <ion-col  size="12" size-md="4"><ExploreContainer /></ion-col>
+        <ion-row v-for="deteccion in detecciones" v-bind:key="deteccion.id">
+          <ion-col size="12" size-md="4">
+            <ion-card>
+              <img alt="Silhouette of mountains" :src="`data:image/jpeg;base64,${deteccion.imagen}`"/>
+              <ion-card-header>
+                <ion-card-title>{{ deteccion.id }}</ion-card-title>
+                <ion-card-subtitle>{{ deteccion.fecha }}</ion-card-subtitle>
+              </ion-card-header>
+
+              <ion-card-content>
+                Here's a small text description
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
@@ -35,17 +40,36 @@
 <script setup lang="ts">
 import { IonCol, IonGrid, IonRow } from '@ionic/vue';
 import { useRouter } from 'vue-router';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
-import ExploreContainer from '@/components/ExploreContainer.vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle  } from '@ionic/vue';
+import axios from 'axios';
+import { ref, onMounted, onUnmounted } from 'vue';
 
+const URL_API = import.meta.env.VITE_URL_API;
 //Router
 const router = useRouter();
 const logout = () => {
   // Aquí puedes limpiar el estado de la sesión o token
-  // Por ejemplo, eliminando el token del almacenamiento local:
   localStorage.removeItem('token'); // O cualquier otro método que estés usando
   alert('Has cerrado sesión'); // Mensaje opcional
   router.push('/'); // Redirigir al inicio de sesión
 };
-</script>
+const detecciones = ref([]);
+const fetchDetecciones = () => {
+  axios.get(`${URL_API}/detecciones`)
+    .then((response) => {
+      detecciones.value = response.data.detecciones;
+    })
+    .catch((error) => {
+      console.error('Error al obtener las detecciones:', error);
+    });
+};
 
+onMounted(() => {
+  fetchDetecciones(); // Llamada inicial
+  const intervalId = setInterval(fetchDetecciones, 5000); // Llamada cada 5 segundos
+
+  onUnmounted(() => {
+    clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+  });
+});
+</script>
