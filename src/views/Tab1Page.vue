@@ -13,12 +13,12 @@
     <!-- Contenido -->
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
-        <ion-title size="large">Tab 1</ion-title>
+        <ion-title size="large">Detecciones</ion-title>
       </ion-header>
       
       <ion-grid>
-        <ion-row v-for="deteccion in detecciones" v-bind:key="deteccion.id">
-          <ion-col size="12" size-md="4">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4" v-for="deteccion in detecciones" :key="deteccion.id">
             <ion-card>
               <img alt="Silhouette of mountains" :src="`data:image/jpeg;base64,${deteccion.imagen}`"/>
               <ion-card-header>
@@ -36,6 +36,7 @@
     </ion-content>
   </ion-page>
 </template>
+
 
 <script setup lang="ts">
 import { IonCol, IonGrid, IonRow } from '@ionic/vue';

@@ -12,12 +12,10 @@
                 <!-- <ion-label position="floating">Correo Electrónico</ion-label> -->
                 <ion-input v-model="email" type="email" placeholder="Ingresa tu correo"></ion-input>
               </ion-item>
-  
               <ion-item>
                 <!-- <ion-label position="floating">Contraseña</ion-label> -->
                 <ion-input v-model="password" type="password" placeholder="Ingresa tu contraseña"></ion-input>
               </ion-item>
-  
               <ion-button expand="block" @click="login">Iniciar Sesión</ion-button>
             </ion-card-content>
           </ion-card>
@@ -27,6 +25,10 @@
   </template>
   
   <script setup lang="ts">
+
+  //CREDENCIALES VALIDAS
+  //b.fuentes38@alumnos.santotomas.cl
+  //Orozimbo4134
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton } from '@ionic/vue';
