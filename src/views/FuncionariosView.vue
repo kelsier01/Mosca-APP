@@ -12,14 +12,14 @@
     <ion-content :fullscreen="true">
       <ion-grid>
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" v-for="trampa in trampas" :key="trampa.nombre">
+          <ion-col size="12" size-md="6" size-lg="4" v-for="funcionario in funcionarios" :key="funcionario.id">
             <Funcionario 
-              :nombre="trampa.nombre" 
-              :modelo="trampa.modelo" 
-              :email="trampa.email" 
-              :predio="trampa.predio" 
-              :macAddress="trampa.macAddress" 
-              :coordenadas="trampa.coordenadas" 
+              :nombre="funcionario.persona.nombre" 
+              :apellido="funcionario.persona.apellido" 
+              :rol="funcionario.rol.nombre" 
+              :rut="funcionario.persona.rut"
+              :telefono="funcionario.persona.telefono"
+              :email="funcionario.persona.usuario.email"
             />
           </ion-col>
         </ion-row>
@@ -77,14 +77,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons } from '@ionic/vue';
 import Funcionario from '@/components/Funcionario.vue';
+import axios from 'axios';
 
-const trampas = [
-  { nombre: "Trampa Inteligente 1", modelo: "Modelo A", email: "example1@gmail.com", predio: "Predio 1", macAddress: "00:11:22:33:44:55", coordenadas: "Lat:123, Long:456" },
-  // Agrega más trampas si necesitas
-];
+const URL_API = import.meta.env.VITE_URL_API;
+const funcionarios = ref([]);
+
+const getFuncionarios = () =>{
+  axios.get(`${URL_API}/funcionarios`)
+    .then((response)=>{
+      if(response){
+        funcionarios.value = response.data.filter((funcionario)=>funcionario.estado == 1);
+        console.log(funcionarios.value)
+      }
+    })
+    .catch((e)=>{
+      console.log(e);
+    });
+}
 
 const form = ref({
   email: '',
@@ -96,20 +108,18 @@ const form = ref({
 });
 
 const isModalOpen = ref(false);
-
-
-
 const abrirFormulario = () => {
   isModalOpen.value = true;
 };
-
 const cerrarFormulario = () => {
   isModalOpen.value = false;
 };
-
 const registrarTrampa = () => {
   console.log('Datos de la trampa:', form.value);
   cerrarFormulario();
 };
 
+onBeforeMount(()=>{
+  getFuncionarios();
+})
 </script>

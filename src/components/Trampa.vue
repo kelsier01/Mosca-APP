@@ -43,14 +43,14 @@
   
           <!-- Botones de acción -->
           <ion-button expand="full" color="danger" @click="deshabilitarTrampa">Deshabilitar</ion-button>
-          <ion-button expand="full" color="primary" @click="vincularFuncionario">Vincular con Funcionario</ion-button>
+          
         </ion-content>
       </ion-modal>
     </ion-card>
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, defineEmits } from 'vue';
   import { IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonModal, IonButton, IonButtons, IonToolbar, IonTitle, IonHeader, IonContent, IonList, IonItem, IonLabel, IonText } from '@ionic/vue';
   
   const props = defineProps({
@@ -61,6 +61,8 @@
     macAddress: String,
     coordenadas: String,
   });
+
+  const emits = defineEmits(['disableTrampa']);
   
   const isModalOpen = ref(false);
   
@@ -73,7 +75,8 @@
   };
   
   const deshabilitarTrampa = () => {
-    console.log("Deshabilitando trampa:", { nombre: props.nombre });
+    console.log("Deshabilitando trampa:", { nombre: props.modelo });
+    emits("disableTrampa");
     cerrarModal();
   };
   

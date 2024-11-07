@@ -50,7 +50,7 @@
       axios.post(`${URL_API}/auth/login`, { email: email.value, password: password.value })
         .then((response) => {
           if(response.status === 200){
-            router.push('/tabs/tab1');
+            router.push('/tabs/dashboard');
           }
         });
     } else {

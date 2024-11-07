@@ -4,7 +4,7 @@
     <!-- Header -->
     <ion-header>
       <ion-toolbar>
-        <ion-title>Alertas</ion-title>
+        <ion-title>Detecciones</ion-title>
         <ion-buttons slot="end">
           <ion-button @click="logout">Cerrar Sesión</ion-button>
         </ion-buttons>

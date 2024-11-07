@@ -1,3 +1,14 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 
+/* src/global.css */
+
+/* src/theme/variables.css */
+
+/* Elimina o comenta el modo oscuro */
+body.dark {
+    --ion-background-color: #000000;
+    --ion-text-color: #ffffff;
+    /* otras variables de modo oscuro */
+  }
+  

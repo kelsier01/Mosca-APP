@@ -1,9 +1,9 @@
 <template>
     <ion-card class="content-card" @click="abrirModal">
       <ion-card-header class="card-header">
-        <ion-icon aria-hidden="true" :icon="person" />
-        <ion-card-title>{{ nombre }}</ion-card-title>
-        <ion-card-subtitle>{{ modelo }}</ion-card-subtitle>
+        <ion-icon aria-hidden="true" :icon="person"/>
+        <ion-card-title>{{ `${nombre} ${apellido}` }}</ion-card-title>
+        <ion-card-subtitle>{{ rol }}</ion-card-subtitle>
       </ion-card-header>
       
       <!-- Modal para ver detalles de la trampa -->
@@ -21,12 +21,7 @@
           <ion-list>
             <ion-item>
               <ion-label>Nombre</ion-label>
-              <ion-text>{{ predio }}</ion-text>
-            </ion-item>
-
-            <ion-item>
-              <ion-label>Apellido</ion-label>
-              <ion-text>{{ predio }}</ion-text>
+              <ion-text>{{ `${nombre} ${apellido}` }}</ion-text>
             </ion-item>
 
             <ion-item>
@@ -36,12 +31,12 @@
             
             <ion-item>
               <ion-label>Telefono</ion-label>
-              <ion-text>{{ predio }}</ion-text>
+              <ion-text>{{ telefono }}</ion-text>
             </ion-item>
 
             <ion-item>
               <ion-label>Rol</ion-label>
-              <ion-text>{{ predio }}</ion-text>
+              <ion-text>{{ rol }}</ion-text>
             </ion-item>
           </ion-list>
   
@@ -59,11 +54,11 @@
   import { person } from 'ionicons/icons';
   const props = defineProps({
     nombre: String,
-    modelo: String,
-    email: String,
-    predio: String,
-    macAddress: String,
-    coordenadas: String,
+    apellido: String,
+    rol: String,
+    rut: String,
+    telefono: String,
+    email: String
   });
   
   const isModalOpen = ref(false);
