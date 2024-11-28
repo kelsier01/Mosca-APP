@@ -3,8 +3,8 @@
   <ion-page>
     <!-- Header -->
     <ion-header>
-      <ion-toolbar>
-        <ion-title>Detecciones</ion-title>
+      <ion-toolbar class="header-toolbar">
+        <ion-title class="header-title">Detecciones</ion-title>
         <ion-buttons slot="end">
           <ion-button @click="logout">Cerrar Sesión</ion-button>
         </ion-buttons>
@@ -74,3 +74,15 @@ onMounted(() => {
   });
 });
 </script>
+
+<style>
+.header-toolbar {
+  --background: #04402A;
+  --color: #ffffff;
+}
+
+.header-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+</style>

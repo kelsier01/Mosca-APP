@@ -1,8 +1,8 @@
 <template>
   <ion-page>
     <ion-header>
-      <ion-toolbar>
-        <ion-title>Funcionarios</ion-title>
+      <ion-toolbar class="header-toolbar">
+        <ion-title class="header-title">Funcionarios</ion-title>
         <ion-buttons slot="end">
           <ion-button @click="abrirFormulario">Registrar Funcionario</ion-button>
         </ion-buttons>
@@ -123,3 +123,15 @@ onBeforeMount(()=>{
   getFuncionarios();
 })
 </script>
+
+<style scoped> 
+.header-toolbar {
+  --background: #04402A;
+  --color: #ffffff;
+}
+
+.header-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+</style>

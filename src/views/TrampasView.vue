@@ -1,8 +1,9 @@
 <template>
   <ion-page>
+
     <ion-header>
-      <ion-toolbar>
-        <ion-title>Trampas</ion-title>
+      <ion-toolbar class="header-toolbar">
+        <ion-title class="header-title">Trampas</ion-title>
         <ion-buttons slot="end">
           <ion-button @click="abrirFormulario">Registrar Trampa</ion-button>
         </ion-buttons>

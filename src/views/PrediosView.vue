@@ -1,76 +1,136 @@
 <template>
-  <!-- Pagina completa -->
   <ion-page>
-    <!-- Header -->
     <ion-header>
-      <ion-toolbar>
-        <ion-title>Alertas</ion-title>
+      <ion-toolbar class="header-toolbar">
+        <ion-title class="header-title">Predios</ion-title>
         <ion-buttons slot="end">
-          <ion-button @click="logout">Cerrar Sesión</ion-button>
+          <ion-button @click="abrirFormulario">Registrar Predios</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <!-- Contenido -->
+
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-title size="large">Detecciones</ion-title>
-      </ion-header>
-      
       <ion-grid>
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" v-for="deteccion in detecciones" :key="deteccion.id">
-            <ion-card>
-              <img alt="Silhouette of mountains" :src="`data:image/jpeg;base64,${deteccion.imagen}`"/>
-              <ion-card-header>
-                <ion-card-title>{{ deteccion.id }}</ion-card-title>
-                <ion-card-subtitle>{{ deteccion.fecha }}</ion-card-subtitle>
-              </ion-card-header>
-
-              <ion-card-content>
-                Here's a small text description
-              </ion-card-content>
-            </ion-card>
+          <ion-col size="12" size-md="6" size-lg="4" v-for="funcionario in funcionarios" :key="funcionario.id">
+            <Predios 
+              :nombre="funcionario.persona.nombre" 
+              :apellido="funcionario.persona.apellido" 
+              :rut="funcionario.persona.rut"
+              :telefono="funcionario.persona.telefono"
+              :email="funcionario.persona.usuario.email"
+            />
           </ion-col>
         </ion-row>
       </ion-grid>
+
+      <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarFormulario">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Registrar Trampa</ion-title>
+            <ion-buttons slot="end">
+              <ion-button @click="cerrarFormulario">Cerrar</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content>
+          <ion-list>
+            <!-- Campos del formulario de registro -->
+            <ion-item>
+              <ion-label position="floating">Nombre</ion-label>
+              <ion-input type="email" v-model="form.email"></ion-input>
+            </ion-item>
+          
+            <ion-item>
+              <ion-label position="floating">Apellido</ion-label>
+              <ion-input type="text" v-model="form.password"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <ion-input type="email" v-model="form.email"></ion-input>
+            </ion-item>
+          
+            <ion-item>
+              <ion-label position="floating">Telefono</ion-label>
+              <ion-input type="email" v-model="form.email"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Rol</ion-label>
+              <ion-select v-model="form.predio" placeholder="Selecciona un predio">
+                <ion-select-option value="Predio 1">Predio 1</ion-select-option>
+                <ion-select-option value="Predio 2">Predio 2</ion-select-option>
+                <ion-select-option value="Predio 3">Predio 3</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+          </ion-list>
+          <ion-button expand="full" @click="registrarTrampa">Registrar</ion-button>
+        </ion-content>
+      </ion-modal>
+
     </ion-content>
   </ion-page>
 </template>
 
-
 <script setup lang="ts">
-import { IonCol, IonGrid, IonRow } from '@ionic/vue';
-import { useRouter } from 'vue-router';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle  } from '@ionic/vue';
+import { onBeforeMount, ref } from 'vue';
+import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons } from '@ionic/vue';
+import Predios from '@/components/Predios.vue';
 import axios from 'axios';
-import { ref, onMounted, onUnmounted } from 'vue';
 
 const URL_API = import.meta.env.VITE_URL_API;
-//Router
-const router = useRouter();
-const logout = () => {
-  // Aquí puedes limpiar el estado de la sesión o token
-  localStorage.removeItem('token'); // O cualquier otro método que estés usando
-  alert('Has cerrado sesión'); // Mensaje opcional
-  router.push('/'); // Redirigir al inicio de sesión
-};
-const detecciones = ref([]);
-const fetchDetecciones = () => {
-  axios.get(`${URL_API}/detecciones`)
-    .then((response) => {
-      detecciones.value = response.data.detecciones;
+const funcionarios = ref([]);
+
+const getFuncionarios = () =>{
+  axios.get(`${URL_API}/funcionarios`)
+    .then((response)=>{
+      if(response){
+        funcionarios.value = response.data.filter((funcionario)=>funcionario.estado == 1);
+        console.log(funcionarios.value)
+      }
     })
-    .catch((error) => {
-      console.error('Error al obtener las detecciones:', error);
+    .catch((e)=>{
+      console.log(e);
     });
+}
+
+const form = ref({
+  email: '',
+  password: '',
+  predio: '',
+  macAddress: '',
+  modelo: '',
+  coordenadas: '',
+});
+
+const isModalOpen = ref(false);
+const abrirFormulario = () => {
+  isModalOpen.value = true;
+};
+const cerrarFormulario = () => {
+  isModalOpen.value = false;
+};
+const registrarTrampa = () => {
+  console.log('Datos de la trampa:', form.value);
+  cerrarFormulario();
 };
 
-onMounted(() => {
-  fetchDetecciones(); // Llamada inicial
-  const intervalId = setInterval(fetchDetecciones, 5000); // Llamada cada 5 segundos
-
-  onUnmounted(() => {
-    clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
-  });
-});
+onBeforeMount(()=>{
+  getFuncionarios();
+})
 </script>
+
+<style scoped> 
+.header-toolbar {
+  --background: #04402A;
+  --color: #ffffff;
+}
+
+.header-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+</style>
