@@ -87,23 +87,22 @@
   </ion-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
 import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonToggle } from '@ionic/vue';
 import Predios from '@/components/PrediosComponente.vue';
 import axios from 'axios';
 
+//Variables
 const URL_API = import.meta.env.VITE_URL_API;
-const predios = ref([]);
-const duenios = ref([]);
-const isModalOpen = ref(false);
-const registrarNuevoDuenio = ref(false);
-
+const predios = ref<Predio[]>([]);
+const duenios = ref<Duenio[]>([]);
+const isModalOpen = ref<boolean>(false);
+const registrarNuevoDuenio = ref<boolean>(false);
 const form = ref({
   duenio_id: null,
   direccion: ''
 });
-
 const nuevoDuenio = ref({
   nombre: '',
   apellido: '',
@@ -112,11 +111,47 @@ const nuevoDuenio = ref({
   email: ''
 });
 
+//Interfaces
+interface Predio {
+  id: number;
+  duenio_id: number;
+  direccion: string;
+  estado: number;
+  duenio: Duenio;
+}
+
+interface Duenio {
+  id: number;
+  persona_id: number;
+  estado: number;
+  persona: Persona;
+}
+
+interface Persona {
+  id: number;
+  usuario_id: string;
+  rut: string;
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  estado: number;
+  usuario: Usuario;
+}
+
+interface Usuario {
+  id: number;
+  email: string;
+  password: string;
+  estado: number;
+}
+
+//Metodos
 const getPredios = () => {
   axios.get(`${URL_API}/predios`)
     .then((response) => {
       if (response) {
-        predios.value = response.data.filter((predio) => predio.estado === 1);
+        console.log("Predios", response.data);
+        predios.value = response.data.filter((predio:Predio) => predio.estado === 1);
       }
     })
     .catch((e) => {
@@ -128,7 +163,8 @@ const getDuenios = () => {
   axios.get(`${URL_API}/duenios`)
     .then((response) => {
       if (response) {
-        duenios.value = response.data.filter((duenio) => duenio.estado === 1);
+        console.log("Duenios", response.data);
+        duenios.value = response.data.filter((duenio:Duenio) => duenio.estado === 1);
       }
     })
     .catch((e) => {
@@ -153,7 +189,6 @@ const registrarPredio = async () => {
       duenio_id: form.value.duenio_id,
       direccion: form.value.direccion
     });
-
     getPredios();
     cerrarFormulario();
   } catch (error) {
@@ -161,11 +196,11 @@ const registrarPredio = async () => {
   }
 };
 
-const abrirFormulario = () => {
+const abrirFormulario = ():void => {
   isModalOpen.value = true;
 };
 
-const cerrarFormulario = () => {
+const cerrarFormulario = ():void => {
   isModalOpen.value = false;
   form.value = { duenio_id: null, direccion: '' };
   nuevoDuenio.value = { nombre: '', apellido: '', rut: '', telefono: '', email: '' };

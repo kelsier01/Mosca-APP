@@ -98,7 +98,7 @@
   </ion-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { IonCol, IonGrid, IonRow, IonModal, IonList, IonItem, IonLabel, IonNote } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import {
@@ -120,22 +120,33 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 const URL_API = import.meta.env.VITE_URL_API; // API base URL
 
+//Inteface
+interface Deteccion {
+  id: number;
+  predio_id: number;
+  trampa_id: number;
+  estado_deteccion_id: number;
+  imagen: string;
+  fecha: string;
+}
+
 // Manejo de estado
-const detecciones = ref([]);
-const isLoading = ref(true); // Indicador de carga
-const isModalOpen = ref(false); // Estado del modal
-const detallesDeteccion = ref(null); // Datos de la detección seleccionada
+const detecciones = ref<Deteccion[]>([]);
+const isLoading = ref<boolean>(true); // Indicador de carga
+const isModalOpen = ref<boolean>(false); // Estado del modal
+const detallesDeteccion = ref<Deteccion | undefined>() ; // Datos de la detección seleccionada
 
 // Router para logout
 const router = useRouter();
-const logout = () => {
+
+const logout = ():void => {
   localStorage.removeItem('token');
   alert('Has cerrado sesión');
   router.push('/');
 };
 
 // Formatear la fecha para mejor legibilidad
-const formatFecha = (fecha) => {
+const formatFecha = (fecha:string):string => {
   const date = new Date(fecha);
   return date.toLocaleString();
 };
@@ -146,6 +157,7 @@ const fetchDetecciones = async () => {
     isLoading.value = true;
     const response = await axios.get(`${URL_API}/detecciones`);
     detecciones.value = response.data.detecciones || [];
+    console.log('Detecciones:', response.data.detecciones);
   } catch (error) {
     console.error('Error al obtener las detecciones:', error);
     alert('Hubo un problema al cargar las detecciones. Inténtalo nuevamente.');
@@ -155,26 +167,31 @@ const fetchDetecciones = async () => {
 };
 
 // Abrir modal con detalles de detección
-const abrirModal = (deteccion) => {
+const abrirModal = (deteccion:Deteccion):void => {
   detallesDeteccion.value = deteccion;
   isModalOpen.value = true;
 };
 
 // Cerrar modal
-const cerrarModal = () => {
+const cerrarModal = ():void => {
   isModalOpen.value = false;
-  detallesDeteccion.value = null;
+  detallesDeteccion.value = undefined;
 };
 
-// Montar y actualizar detecciones periódicamente
+let intervalId: ReturnType<typeof setInterval> | null = null;
+
 onMounted(() => {
   fetchDetecciones(); // Llamada inicial
-  const intervalId = setInterval(fetchDetecciones, 5000); // Actualizar cada 5 segundos
-
-  onUnmounted(() => {
-    clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
-  });
+  intervalId = setInterval(fetchDetecciones, 5000); // Actualizar cada 5 segundos
 });
+
+onUnmounted(() => {
+  if (intervalId !== null) {
+    clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+  }
+});
+
+
 </script>
 
 <style scoped>

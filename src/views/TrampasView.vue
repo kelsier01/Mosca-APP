@@ -14,9 +14,8 @@
       <!-- Lista de Trampas Activas -->
       <ion-grid>
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" v-for="trampa in trampas" :key="trampa.nombre">
+          <ion-col size="12" size-md="6" size-lg="4" v-for="trampa in trampas" :key="trampa.id">
             <Trampa 
-              :nombre="trampa.nombre" 
               :modelo="trampa.modelo" 
               :email="trampa.usuario.email" 
               :predio="trampa.predio.direccion" 
@@ -44,24 +43,39 @@
             <!-- Campos del formulario de registro -->
             <ion-item>
               <ion-label position="floating">Modelo</ion-label>
-              <ion-input type="text" :value="modelo" @ionInput="e => modelo = e.target.value"></ion-input>
+              <ion-input type="text" :value="modelo" @ionInput="(e: InputEvent) => {
+                const target = e.target as HTMLInputElement | null;
+                if (target) {
+                  modelo = target.value;
+                }
+              }"></ion-input>
             </ion-item>
 
             <ion-item>
               <ion-label>Predio</ion-label>
-              <ion-select :value="predio_id" @ionChange="e => predio_id = e.detail.value" placeholder="Selecciona un predio">
+              <ion-select :value="predio_id" @ionChange="(e: CustomEvent) => predio_id = e.detail.value" placeholder="Selecciona un predio">
                 <ion-select-option v-for="predio in predios" :value="predio.id" :key="predio.id">{{ predio.direccion }}</ion-select-option>
               </ion-select>
             </ion-item>
 
             <ion-item>
               <ion-label position="floating">Dirección MAC</ion-label>
-              <ion-input type="text" :value="direccion_mac" @ionInput="e => direccion_mac = e.target.value"></ion-input>
+              <ion-input type="text" :value="direccion_mac"  @ionInput="(e: InputEvent) => {
+                const target = e.target as HTMLInputElement | null;
+                if (target) {
+                  direccion_mac = target.value;
+                }
+              }"></ion-input>
             </ion-item>
       
             <ion-item>
               <ion-label position="floating">Coordenadas</ion-label>
-              <ion-input type="text" :value="coordenadas" @ionInput="e => coordenadas = e.target.value"></ion-input>
+              <ion-input type="text" :value="coordenadas" @ionInput="(e: InputEvent) => {
+                const target = e.target as HTMLInputElement | null;
+                if (target) {
+                  coordenadas = target.value;
+                }
+              }"></ion-input>
             </ion-item>
           </ion-list>
           <ion-button expand="full" @click="registrarTrampa">Registrar</ion-button>
@@ -86,21 +100,76 @@ import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid
 import Trampa from '@/components/TrampaComponente.vue';
 import axios from 'axios';
 
+//Interface
+
+interface TrampaInterface {
+  id: number;
+  predio_id: number;
+  usuario_id: number;
+  modelo: string;
+  direccion_mac: string;
+  coordenadas: string;
+  estado: number;
+  predio: Predio;
+  usuario: Usuario;
+}
+
+interface Predio {
+  id: number;
+  duenio_id: number;
+  estado: number;
+  direccion: string;
+}
+
+interface Usuario {
+  id: number;
+  email: string;
+  password: string;
+  estado: number;
+}
+
+interface Funcionario {
+  id: number;
+  rol_id: number;
+  persona_id: number;
+  estado: number;
+  persona: Persona;
+  rol: Rol;
+}
+
+interface Persona {
+  id: number;
+  usuario_id: number;
+  nombre: string;
+  apellido: string;
+  rut: string;
+  telefono: string;
+  direccion: string;
+  estado: number;
+  usuario: Usuario;
+}
+
+interface Rol {
+  id: number;
+  nombre: string;
+  estado: number;
+}
+
 const URL_API = import.meta.env.VITE_URL_API;
-const trampas = ref([]);
-const predios = ref([]);// Ejemplo de modelos de trampas
-const funcionarios = ref([]);
+const trampas = ref<TrampaInterface[]>([]);
+const predios = ref<Predio[]>([]);
+const funcionarios = ref<Funcionario[]>([]);
 
 // Variables individuales para cada campo del formulario
-const predio_id = ref('');
-const direccion_mac = ref('');
-const modelo = ref('');
-const coordenadas = ref('');
+const predio_id = ref<string>('');
+const direccion_mac = ref<string>('');
+const modelo = ref<string>('');
+const coordenadas = ref<string>('');
 
 // Estado del modal y del toast
-const isModalOpen = ref(false);
-const isToastOpen = ref(false);
-const toastMessage = ref(''); // Mensaje dinámico para el toast
+const isModalOpen = ref<boolean>(false);
+const isToastOpen = ref<boolean>(false);
+const toastMessage = ref<string>(''); // Mensaje dinámico para el toast
 
 
 // Inicializar la estructura de asignaciones
@@ -109,7 +178,8 @@ const getFuncionarios = () => {
   axios.get(`${URL_API}/funcionarios`)
     .then((response) => {
       if (response) {
-        funcionarios.value = response.data.filter((funcionario)=> funcionario.estado == 1);
+        console.log("Funcionarios", response.data);
+        funcionarios.value = response.data.filter((funcionario:Funcionario)=> funcionario.estado == 1);
         console.log(funcionarios.value);
       }
     })
@@ -122,7 +192,8 @@ const getTrampas = () => {
   axios.get(`${URL_API}/trampas`)
     .then((response) => {
       if (response) {
-        trampas.value = response.data.filter((trampa)=> trampa.estado == 1);
+        console.log("Trampas", response.data);
+        trampas.value = response.data.filter((trampa:TrampaInterface)=> trampa.estado == 1);
         console.log(trampas.value);
       }
     })
@@ -135,6 +206,7 @@ const getPredios = () => {
   axios.get(`${URL_API}/predios`)
     .then((response) => {
       if (response) {
+        console.log("Predios", response.data);
         predios.value = response.data;
         console.log(predios.value);
       }
@@ -175,11 +247,11 @@ const disableTrampa = async (trampaId: number) => {
   }
 };
 
-const abrirFormulario = () => {
+const abrirFormulario = ():void => {
   isModalOpen.value = true;
 };
 
-const cerrarFormulario = () => {
+const cerrarFormulario = ():void => {
   isModalOpen.value = false;
 };
 

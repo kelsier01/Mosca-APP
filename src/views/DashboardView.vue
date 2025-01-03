@@ -166,28 +166,48 @@ interface Deteccion {
   imagen: string;
 }
 
+// Interfaz para la entidad "Funcionario"
 interface Funcionario {
+  estado: number; // Estado del funcionario (activo/inactivo)
+  id: number; // ID único del funcionario
+  persona: Persona; // Información de la persona asociada
+  usuario: Usuario; // Información del usuario asociada
+  rol: Rol; // Información del rol asociado
+  usuario_id: number; // ID del usuario asociado
+  persona_id: number; // ID de la persona asociada
+  rol_id: number; // ID del rol asociado
+}
+
+// Interfaz para la entidad "Persona"
+interface Persona {
+  id: number; // ID único de la persona
+  nombre: string; // Nombre de la persona
+  apellido: string; // Apellido de la persona
+  rut: string; // RUT de la persona (identificación chilena)
+  telefono: string; // Teléfono de la persona
+  estado: number; // Estado de la persona (activo/inactivo)
+}
+
+// Interfaz para la entidad "Usuario"
+interface Usuario {
+  id: number; // ID único del usuario
+  email: string; // Email del usuario
+  password: string; // Contraseña del usuario (encriptada)
+  estado: number; // Estado del usuario (activo/inactivo)
+}
+
+// Interfaz para la entidad "Rol"
+interface Rol {
+  id: number; // ID único del rol
+  nombre: string; // Nombre del rol (e.g., "Administrador")
+  estado: number; // Estado del rol (activo/inactivo)
+}
+
+interface Predio {
   id: number;
-  rol_id: number;
+  duenio_id: number;
+  direccion: string;
   estado: number;
-  persona_id: number;
-  persona:{
-    id: number;
-    usuario_id: number;
-    rut: string;
-    nombre: string;
-    apellido: string;
-    usuario:{
-      id: number;
-      email: string;
-      password: string;
-      estado: number;
-    }
-  };
-  rol:{
-    id: number;
-    nombre: string;
-  };
 }
 
 interface Trampa {
@@ -198,52 +218,33 @@ interface Trampa {
   direccion_mac: string;
   estado: number;
   coordenadas: string;
-  predio:{
-    id: number;
-    duenio_id: number;
-    direccion: string;
-    estado: number;
-  };
-  usuario:{
-    id: number;
-    email: string;
-    password: string;
-    estado: number;
-  };
-}
-//Response interfaces
-interface DeteccionesResponse {
-  detecciones: Deteccion[];
-}
-interface FuncionariosResponse {
-  funcionarios: Funcionario[];
-}
-interface TrampasResponse {
-  trampas: Trampa[];
+  predio: Predio;
+  usuario: Usuario;
 }
 
+
 // Ref arrays
-const detecciones = ref<Deteccion>([]);
-const funcionarios = ref<Funcionario>([]);
-const trampas = ref<Trampa>([]);
+const detecciones = ref<Deteccion[]>([]);
+const funcionarios = ref<Funcionario[]>([]);
+const trampas = ref<Trampa[]>([]);
 
 // Llamada a la API para obtener los datos del Dashboard
 const fetchData = async (): Promise<void> => {
   try {
-    const deteccionesResponse = await axios.get<DeteccionesResponse>(`${URL_API}/detecciones`);
+    const deteccionesResponse = await axios.get(`${URL_API}/detecciones`);
     deteccionesTotales.value = deteccionesResponse.data.detecciones.length;
     detecciones.value = deteccionesResponse.data.detecciones;
     //Console.log para ver si se obtienen los datos
     console.log("Detecciones", deteccionesResponse.data.detecciones);
 
-    const funcionariosResponse = await axios.get<FuncionariosResponse>(`${URL_API}/funcionarios`);
+    const funcionariosResponse = await axios.get(`${URL_API}/funcionarios`);
     funcionariosTotales.value = funcionariosResponse.data.length;
     funcionarios.value = funcionariosResponse.data;
     //Console.log para ver si se obtienen los datos
     console.log("Funcionarios", funcionariosResponse.data);
 
-    const trampasResponse = await axios.get<TrampasResponse>(`${URL_API}/trampas`);
-    trampasTotales.value = trampasResponse.data.filter((trampa) => trampa.estado === 1).length;
+    const trampasResponse = await axios.get(`${URL_API}/trampas`);
+    trampasTotales.value = trampasResponse.data.filter((trampa:any) => trampa.estado === 1).length;
     trampas.value = trampasResponse.data;
     //Console.log para ver si se obtienen los datos
     console.log("Trampas", trampasResponse.data);

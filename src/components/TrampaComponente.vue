@@ -2,7 +2,7 @@
   <ion-card class="content-card" @click="abrirModal">
     <ion-card-header class="card-header">
       <img src="/icono-trampa.png" alt="Icono de trampa" class="trap-icon" />
-      <ion-card-title class="card-title">{{ nombre }}</ion-card-title>
+      <ion-card-title class="card-title">{{ modelo }}</ion-card-title>
       <ion-card-subtitle class="card-subtitle">{{ modelo }}</ion-card-subtitle>
     </ion-card-header>
     
@@ -71,7 +71,6 @@ import {
 } from '@ionic/vue';
 
 interface TrampaProps {
-  nombre: string;
   modelo: string;
   email: string;
   predio: string;
@@ -80,7 +79,6 @@ interface TrampaProps {
 }
 
 const props = withDefaults(defineProps<TrampaProps>(),{
-  nombre: '',
   modelo: '',
   email: '',
   predio: '',
@@ -100,7 +98,7 @@ const cerrarModal = ():void => {
 };
 
 const deshabilitarTrampa = ():void => {
-  console.log('Deshabilitando trampa:', { nombre: props.modelo });
+  console.log('Deshabilitando trampa:', props.modelo);
   emits('disableTrampa');
   cerrarModal();
 };

@@ -76,28 +76,15 @@
   </ion-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
 import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons } from '@ionic/vue';
 import Funcionario from '@/components/FuncionarioComponente.vue';
 import axios from 'axios';
 
+//Variables
 const URL_API = import.meta.env.VITE_URL_API;
-const funcionarios = ref([]);
-
-const getFuncionarios = () =>{
-  axios.get(`${URL_API}/funcionarios`)
-    .then((response)=>{
-      if(response){
-        funcionarios.value = response.data.filter((funcionario)=>funcionario.estado == 1);
-        console.log(funcionarios.value)
-      }
-    })
-    .catch((e)=>{
-      console.log(e);
-    });
-}
-
+const isModalOpen = ref<boolean>(false);
 const form = ref({
   email: '',
   password: '',
@@ -106,15 +93,62 @@ const form = ref({
   modelo: '',
   coordenadas: '',
 });
+const funcionarios = ref<FuncionarioInterface[]>([]);
 
-const isModalOpen = ref(false);
-const abrirFormulario = () => {
+//Interface
+interface FuncionarioInterface {
+  id: number;
+  persona_id: number;
+  rol_id: number;
+  estado: number;
+  persona: Persona;
+  rol: Rol;
+}
+
+interface Persona {
+  id: number;
+  usuario_id: number;
+  rut: string;
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  usuario: Usuario;
+}
+
+interface Usuario {
+  id: number;
+  email: string;
+  password: string;
+  estado: number;
+}
+
+interface Rol {
+  id: number;
+  nombre: string;
+  estado: number;
+}
+
+const getFuncionarios = ():void =>{
+  axios.get(`${URL_API}/funcionarios`)
+    .then((response)=>{
+      if(response){
+        console.log("Funcionarios", response.data);
+        funcionarios.value = response.data.filter((funcionario:FuncionarioInterface)=>funcionario.estado == 1);
+        console.log(funcionarios.value)
+      }
+    })
+    .catch((e)=>{
+      console.log(e);
+    });
+}
+
+const abrirFormulario = ():void => {
   isModalOpen.value = true;
 };
-const cerrarFormulario = () => {
+const cerrarFormulario = ():void => {
   isModalOpen.value = false;
 };
-const registrarTrampa = () => {
+const registrarTrampa = ():void => {
   console.log('Datos de la trampa:', form.value);
   cerrarFormulario();
 };
