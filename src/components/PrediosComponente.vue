@@ -2,8 +2,8 @@
     <ion-card class="content-card" @click="abrirModal">
       <ion-card-header class="card-header">
         <ion-icon aria-hidden="true" :icon="home" class="person-icon" />
-        <ion-card-title class="card-title">{{ `${direccion}` }}</ion-card-title>
-        <ion-card-subtitle class="card-subtitle">{{ nombre }}</ion-card-subtitle>
+        <ion-card-title class="card-title">{{ direccion }}</ion-card-title>
+        <ion-card-subtitle class="card-subtitle">{{ `${nombre} ${apellido}` }}</ion-card-subtitle>
       </ion-card-header>
       
       <!-- Modal para ver detalles del funcionario -->
@@ -20,17 +20,17 @@
         <ion-content class="modal-content">
           <ion-list class="details-list">
             <ion-item class="detail-item">
-              <ion-label>Rut</ion-label>
+              <ion-label>Rut del propietario</ion-label>
               <ion-text>{{ `${rut}` }}</ion-text>
             </ion-item>
   
             <ion-item class="detail-item">
-              <ion-label>Nombre </ion-label>
+              <ion-label>Nombre del propietario</ion-label>
               <ion-text>{{ nombre }}</ion-text>
             </ion-item>
             
             <ion-item class="detail-item">
-              <ion-label>Apellido</ion-label>
+              <ion-label>Apellido del propietario</ion-label>
               <ion-text>{{ apellido }}</ion-text>
             </ion-item>
   
@@ -40,7 +40,12 @@
             </ion-item>
 
             <ion-item class="detail-item">
-              <ion-label>Direccion</ion-label>
+              <ion-label>Correo electronico</ion-label>
+              <ion-text>{{ email ? email : "N/A" }}</ion-text>
+            </ion-item>
+
+            <ion-item class="detail-item">
+              <ion-label>Direccion del predio</ion-label>
               <ion-text>{{ direccion }}</ion-text>
             </ion-item>
 
@@ -75,35 +80,48 @@
     IonText,
     IonIcon,
   } from '@ionic/vue';
+
   import { home } from 'ionicons/icons';
-  
-  const props = defineProps({
-    direccion: String,
-    rut: String,
-    usuario_id: String,
-    nombre: String,
-    apellido: String,
-    telefono: String,
+
+  //Interface
+  interface PrediosProps {
+    direccion: string;
+    rut: string;
+    usuario_id: string;
+    nombre: string;
+    apellido: string;
+    telefono: string;
+    email: string;
+  }
+  //Props
+  const props = withDefaults(defineProps<PrediosProps>(),{
+    direccion: '',
+    rut: '',
+    usuario_id: '',
+    nombre: '',
+    apellido: '',
+    telefono: '',
+    email: '',
   });
   
-  const isModalOpen = ref(false);
+  const isModalOpen = ref<boolean>(false);
   
-  const abrirModal = () => {
+  const abrirModal = (): void => {
     isModalOpen.value = true;
   };
   
-  const cerrarModal = () => {
+  const cerrarModal = (): void => {
     isModalOpen.value = false;
   };
   
-  const deshabilitarTrampa = () => {
+  const deshabilitarTrampa = (): void => {
     console.log('Deshabilitando trampa:', { nombre: props.nombre });
     cerrarModal();
   };
   
-  const vincularFuncionario = () => {
-    console.log('Vinculando trampa con funcionario:', { nombre: props.nombre });
-  };
+  // const vincularFuncionario = () => {
+  //   console.log('Vinculando trampa con funcionario:', { nombre: props.nombre });
+  // };
   </script>
   
 <style scoped>

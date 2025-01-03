@@ -4,7 +4,7 @@
       <ion-toolbar class="header-toolbar">
         <ion-title class="header-title">Predios</ion-title>
         <ion-buttons slot="end">
-          <ion-button @click="abrirFormulario">Registrar Predios</ion-button>
+          <ion-button @click="abrirFormulario">Registrar Predio</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -12,13 +12,15 @@
     <ion-content :fullscreen="true">
       <ion-grid>
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" v-for="funcionario in funcionarios" :key="funcionario.id">
+          <ion-col size="12" size-md="6" size-lg="4" v-for="predio in predios" :key="predio.id">
             <Predios 
-              :nombre="funcionario.persona.nombre" 
-              :apellido="funcionario.persona.apellido" 
-              :rut="funcionario.persona.rut"
-              :telefono="funcionario.persona.telefono"
-              :email="funcionario.persona.usuario.email"
+              :rut="predio.duenio?.persona.rut"
+              :nombre="predio.duenio?.persona.nombre" 
+              :apellido="predio.duenio?.persona.apellido"
+              :telefono="predio.duenio?.persona.telefono"
+              :email="predio.duenio.persona.usuario?.email"
+              :direccion="predio?.direccion"
+              :usuario_id="predio?.duenio?.persona?.usuario_id"
             />
           </ion-col>
         </ion-row>
@@ -27,7 +29,7 @@
       <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarFormulario">
         <ion-header>
           <ion-toolbar>
-            <ion-title>Registrar Trampa</ion-title>
+            <ion-title>Registrar Predio</ion-title>
             <ion-buttons slot="end">
               <ion-button @click="cerrarFormulario">Cerrar</ion-button>
             </ion-buttons>
@@ -36,91 +38,144 @@
 
         <ion-content>
           <ion-list>
-            <!-- Campos del formulario de registro -->
             <ion-item>
-              <ion-label position="floating">Nombre</ion-label>
-              <ion-input type="email" v-model="form.email"></ion-input>
-            </ion-item>
-          
-            <ion-item>
-              <ion-label position="floating">Apellido</ion-label>
-              <ion-input type="text" v-model="form.password"></ion-input>
-            </ion-item>
-
-            <ion-item>
-              <ion-label position="floating">Email</ion-label>
-              <ion-input type="email" v-model="form.email"></ion-input>
-            </ion-item>
-          
-            <ion-item>
-              <ion-label position="floating">Telefono</ion-label>
-              <ion-input type="email" v-model="form.email"></ion-input>
-            </ion-item>
-
-            <ion-item>
-              <ion-label>Rol</ion-label>
-              <ion-select v-model="form.predio" placeholder="Selecciona un predio">
-                <ion-select-option value="Predio 1">Predio 1</ion-select-option>
-                <ion-select-option value="Predio 2">Predio 2</ion-select-option>
-                <ion-select-option value="Predio 3">Predio 3</ion-select-option>
+              <ion-label>Dueño</ion-label>
+              <ion-select v-model="form.duenio_id" :disabled="registrarNuevoDuenio" placeholder="Selecciona un dueño">
+                <ion-select-option v-for="duenio in duenios" :value="duenio.id" :key="duenio.id">
+                  {{ duenio.persona.nombre }} {{ duenio.persona.apellido }}
+                </ion-select-option>
               </ion-select>
             </ion-item>
 
+            <ion-item>
+              <ion-label position="floating">Dirección</ion-label>
+              <ion-input type="text" v-model="form.direccion"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Registrar nuevo dueño</ion-label>
+              <ion-toggle v-model="registrarNuevoDuenio"></ion-toggle>
+            </ion-item>
+
+            <div v-if="registrarNuevoDuenio">
+              <ion-item>
+                <ion-label position="floating">Nombre</ion-label>
+                <ion-input type="text" v-model="nuevoDuenio.nombre"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Apellido</ion-label>
+                <ion-input type="text" v-model="nuevoDuenio.apellido"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">RUT</ion-label>
+                <ion-input type="text" v-model="nuevoDuenio.rut"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Teléfono</ion-label>
+                <ion-input type="text" v-model="nuevoDuenio.telefono"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Email</ion-label>
+                <ion-input type="email" v-model="nuevoDuenio.email"></ion-input>
+              </ion-item>
+            </div>
           </ion-list>
-          <ion-button expand="full" @click="registrarTrampa">Registrar</ion-button>
+          <ion-button expand="full" @click="registrarPredio">Registrar</ion-button>
         </ion-content>
       </ion-modal>
-
     </ion-content>
   </ion-page>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { onBeforeMount, ref } from 'vue';
-import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons } from '@ionic/vue';
-import Predios from '@/components/Predios.vue';
+import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonToggle } from '@ionic/vue';
+import Predios from '@/components/PrediosComponente.vue';
 import axios from 'axios';
 
 const URL_API = import.meta.env.VITE_URL_API;
-const funcionarios = ref([]);
-
-const getFuncionarios = () =>{
-  axios.get(`${URL_API}/funcionarios`)
-    .then((response)=>{
-      if(response){
-        funcionarios.value = response.data.filter((funcionario)=>funcionario.estado == 1);
-        console.log(funcionarios.value)
-      }
-    })
-    .catch((e)=>{
-      console.log(e);
-    });
-}
+const predios = ref([]);
+const duenios = ref([]);
+const isModalOpen = ref(false);
+const registrarNuevoDuenio = ref(false);
 
 const form = ref({
-  email: '',
-  password: '',
-  predio: '',
-  macAddress: '',
-  modelo: '',
-  coordenadas: '',
+  duenio_id: null,
+  direccion: ''
 });
 
-const isModalOpen = ref(false);
+const nuevoDuenio = ref({
+  nombre: '',
+  apellido: '',
+  rut: '',
+  telefono: '',
+  email: ''
+});
+
+const getPredios = () => {
+  axios.get(`${URL_API}/predios`)
+    .then((response) => {
+      if (response) {
+        predios.value = response.data.filter((predio) => predio.estado === 1);
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+};
+
+const getDuenios = () => {
+  axios.get(`${URL_API}/duenios`)
+    .then((response) => {
+      if (response) {
+        duenios.value = response.data.filter((duenio) => duenio.estado === 1);
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+};
+
+const registrarPredio = async () => {
+  try {
+    if (registrarNuevoDuenio.value) {
+      const duenioResponse = await axios.post(`${URL_API}/duenios`, {
+        nombre: nuevoDuenio.value.nombre,
+        apellido: nuevoDuenio.value.apellido,
+        rut: nuevoDuenio.value.rut,
+        telefono: nuevoDuenio.value.telefono,
+        email: nuevoDuenio.value.email
+      });
+      form.value.duenio_id = duenioResponse.data.id;
+    }
+
+    await axios.post(`${URL_API}/predios`, {
+      duenio_id: form.value.duenio_id,
+      direccion: form.value.direccion
+    });
+
+    getPredios();
+    cerrarFormulario();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const abrirFormulario = () => {
   isModalOpen.value = true;
 };
+
 const cerrarFormulario = () => {
   isModalOpen.value = false;
-};
-const registrarTrampa = () => {
-  console.log('Datos de la trampa:', form.value);
-  cerrarFormulario();
+  form.value = { duenio_id: null, direccion: '' };
+  nuevoDuenio.value = { nombre: '', apellido: '', rut: '', telefono: '', email: '' };
+  registrarNuevoDuenio.value = false;
 };
 
-onBeforeMount(()=>{
-  getFuncionarios();
-})
+onBeforeMount(() => {
+  getPredios();
+  getDuenios();
+});
 </script>
 
 <style scoped> 

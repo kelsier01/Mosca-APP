@@ -28,7 +28,7 @@
       <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarFormulario">
         <ion-header>
           <ion-toolbar>
-            <ion-title>Registrar Trampa</ion-title>
+            <ion-title>Registrar Funcionario</ion-title>
             <ion-buttons slot="end">
               <ion-button @click="cerrarFormulario">Cerrar</ion-button>
             </ion-buttons>
@@ -60,7 +60,7 @@
 
             <ion-item>
               <ion-label>Rol</ion-label>
-              <ion-select v-model="form.predio" placeholder="Selecciona un predio">
+              <ion-select v-model="form.predio" placeholder="Selecciona un rol">
                 <ion-select-option value="Predio 1">Predio 1</ion-select-option>
                 <ion-select-option value="Predio 2">Predio 2</ion-select-option>
                 <ion-select-option value="Predio 3">Predio 3</ion-select-option>
@@ -76,10 +76,10 @@
   </ion-page>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { onBeforeMount, ref } from 'vue';
 import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons } from '@ionic/vue';
-import Funcionario from '@/components/Funcionario.vue';
+import Funcionario from '@/components/FuncionarioComponente.vue';
 import axios from 'axios';
 
 const URL_API = import.meta.env.VITE_URL_API;

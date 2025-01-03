@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
 import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton, IonButtons, IonToast } from '@ionic/vue';
-import Trampa from '@/components/Trampa.vue';
+import Trampa from '@/components/TrampaComponente.vue';
 import axios from 'axios';
 
 const URL_API = import.meta.env.VITE_URL_API;

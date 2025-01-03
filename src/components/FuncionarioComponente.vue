@@ -1,43 +1,42 @@
 <template>
   <ion-card class="content-card" @click="abrirModal">
     <ion-card-header class="card-header">
-      <img src="/icono-trampa.png" alt="Icono de trampa" class="trap-icon" />
-      <ion-card-title class="card-title">{{ nombre }}</ion-card-title>
-      <ion-card-subtitle class="card-subtitle">{{ modelo }}</ion-card-subtitle>
+      <ion-icon aria-hidden="true" :icon="person" class="person-icon" />
+      <ion-card-title class="card-title">{{ `${nombre} ${apellido}` }}</ion-card-title>
+      <ion-card-subtitle class="card-subtitle">{{ rol }}</ion-card-subtitle>
     </ion-card-header>
     
-    <!-- Modal para ver detalles de la trampa -->
+    <!-- Modal para ver detalles del funcionario -->
     <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarModal">
       <ion-header>
         <ion-toolbar class="modal-toolbar">
-          <ion-title class="modal-title">Detalles de la Trampa</ion-title>
+          <ion-title class="modal-title">Detalles del Funcionario</ion-title>
           <ion-buttons slot="end">
             <ion-button @click="cerrarModal" class="close-button">Cerrar</ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
-      
+
       <ion-content class="modal-content">
         <ion-list class="details-list">
+          <ion-item class="detail-item">
+            <ion-label>Nombre</ion-label>
+            <ion-text>{{ `${nombre} ${apellido}` }}</ion-text>
+          </ion-item>
+
           <ion-item class="detail-item">
             <ion-label>Email</ion-label>
             <ion-text>{{ email }}</ion-text>
           </ion-item>
+          
           <ion-item class="detail-item">
-            <ion-label>Predio</ion-label>
-            <ion-text>{{ predio }}</ion-text>
+            <ion-label>Teléfono</ion-label>
+            <ion-text>{{ telefono }}</ion-text>
           </ion-item>
+
           <ion-item class="detail-item">
-            <ion-label>Dirección MAC</ion-label>
-            <ion-text>{{ macAddress }}</ion-text>
-          </ion-item>
-          <ion-item class="detail-item">
-            <ion-label>Modelo</ion-label>
-            <ion-text>{{ modelo }}</ion-text>
-          </ion-item>
-          <ion-item class="detail-item">
-            <ion-label>Coordenadas</ion-label>
-            <ion-text>{{ coordenadas }}</ion-text>
+            <ion-label>Rol</ion-label>
+            <ion-text>{{ rol }}</ion-text>
           </ion-item>
         </ion-list>
 
@@ -45,13 +44,16 @@
         <ion-button expand="full" color="danger" @click="deshabilitarTrampa" class="action-button">
           Deshabilitar
         </ion-button>
+        <ion-button expand="full" color="primary" @click="vincularFuncionario" class="action-button">
+          Vincular con Funcionario
+        </ion-button>
       </ion-content>
     </ion-modal>
   </ion-card>
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue';
+import { ref } from 'vue';
 import {
   IonCard,
   IonCardHeader,
@@ -68,65 +70,82 @@ import {
   IonItem,
   IonLabel,
   IonText,
+  IonIcon,
 } from '@ionic/vue';
+import { person } from 'ionicons/icons';
 
-const props = defineProps({
-  nombre: String,
-  modelo: String,
-  email: String,
-  predio: String,
-  macAddress: String,
-  coordenadas: String,
+// Interface
+interface FuncionarioProps {
+  nombre: string;
+  apellido: string;
+  rol: string;
+  rut: string;
+  telefono: string;
+  email: string;
+}
+
+
+// Props
+const props = withDefaults(defineProps<FuncionarioProps>(), {
+  nombre: '',
+  apellido: '',
+  rol: '',
+  rut: '',
+  telefono: '',
+  email: '',
 });
 
-const emits = defineEmits(['disableTrampa']);
+const isModalOpen = ref<boolean>(false);
 
-const isModalOpen = ref(false);
-
-const abrirModal = () => {
+const abrirModal = (): void => {
   isModalOpen.value = true;
 };
 
-const cerrarModal = () => {
+const cerrarModal = (): void => {
   isModalOpen.value = false;
 };
 
-const deshabilitarTrampa = () => {
-  console.log('Deshabilitando trampa:', { nombre: props.modelo });
-  emits('disableTrampa');
+const deshabilitarTrampa = (): void => {
+  console.log('Deshabilitando trampa:', { nombre: props.nombre });
   cerrarModal();
+};
+
+const vincularFuncionario = (): void => {
+  console.log('Vinculando trampa con funcionario:', { nombre: props.nombre });
 };
 </script>
 
 <style scoped>
-/* Estilos de la tarjeta */
+/* Tarjeta principal */
 .content-card {
-  max-width: 300px;
+  max-width: 320px;
   margin: 1rem auto;
   cursor: pointer;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .content-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Encabezado de la tarjeta */
 .card-header {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  text-align: center;
+  padding: 1.5rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.trap-icon {
-  width: 120px;
-  height: 120px;
+.person-icon {
+  font-size: 4rem;
+  color: #04402A;
   margin-bottom: 1rem;
-  
 }
 
 .card-title {
@@ -141,7 +160,7 @@ const deshabilitarTrampa = () => {
   color: #92A69E;
 }
 
-/* Estilos del modal */
+/* Modal */
 .modal-toolbar {
   --background: #04402A;
   --color: #ffffff;
@@ -164,7 +183,6 @@ const deshabilitarTrampa = () => {
 .details-list {
   margin: 0;
   padding: 0;
-  background: none;
 }
 
 .detail-item {
@@ -173,26 +191,32 @@ const deshabilitarTrampa = () => {
   border-bottom: 1px solid #f0f0f0;
 }
 
-/* Botón de acción */
+/* Botones de acción */
 .action-button {
   margin-top: 1rem;
   font-size: 1rem;
   font-weight: bold;
-  --background: #e63946;
-  --color: #ffffff;
   border-radius: 8px;
   transition: background-color 0.2s ease;
 }
 
-.action-button:hover {
+.action-button:first-of-type {
+  --background: #e63946;
+}
+
+.action-button:first-of-type:hover {
   --background: #b92a3a;
 }
 
-/* Efectos de transición */
-ion-modal {
-  --border-radius: 12px;
+.action-button:last-of-type {
+  --background: #04402A;
 }
 
+.action-button:last-of-type:hover {
+  --background: #01261C;
+}
+
+/* Responsividad */
 @media (min-width: 768px) {
   .content-card {
     max-width: 400px;
