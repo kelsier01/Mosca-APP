@@ -56,6 +56,7 @@ import { notifications, eye, bug, people, home } from 'ionicons/icons';
   --color-selected: #92A69E; /* Color para el tab activo */
   --color: #F2F2F2; /* Color para tabs inactivos */
   height: 60px; /* Altura predeterminada */
+  padding: 0 5px; /* Espaciado interno para evitar cortes */
 }
 
 /* Responsivo para pantallas grandes */
@@ -81,17 +82,18 @@ import { notifications, eye, bug, people, home } from 'ionicons/icons';
 
 /* Etiquetas de texto */
 ion-label {
-  font-size: 0.85rem;
+  font-size: 0.75rem; /* Reducir tamaño de texto */
   font-weight: bold;
   text-transform: uppercase;
   color: var(--color);
   margin-top: 4px; /* Espaciado entre el icono y el texto */
+  white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
 }
 
 /* Cambiar tamaño de texto en pantallas grandes */
 @media (min-width: 768px) {
   ion-label {
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -100,6 +102,8 @@ ion-tab-button {
   flex: 1; /* Todos los botones ocupan el mismo ancho */
   text-align: center;
   background-color: #04402A;
+  min-width: 60px; /* Ancho mínimo para cada botón */
+  max-width: 100px; /* Ancho máximo para cada botón */
 }
 
 ion-tab-button:hover {
@@ -125,6 +129,7 @@ ion-tab-button {
 @media (max-width: 480px) {
   .custom-tab-bar {
     height: 50px; /* Reducir altura en pantallas pequeñas */
+    padding: 0 2px; /* Reducir espaciado interno */
   }
 
   .custom-icon {
@@ -132,7 +137,7 @@ ion-tab-button {
   }
 
   ion-label {
-    font-size: 0.75rem; /* Reducir tamaño de texto */
+    font-size: 0.65rem; /* Reducir tamaño de texto */
   }
 }
 </style>

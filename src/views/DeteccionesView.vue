@@ -13,6 +13,14 @@
 
     <!-- Contenido -->
     <ion-content :fullscreen="true">
+      <!-- Alerta de nueva detección -->
+      <ion-alert
+        :is-open="mostrarAlerta"
+        :message="mensajeAlerta"
+        :buttons="['OK']"
+        @didDismiss="mostrarAlerta = false"
+      />
+
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">Detecciones</ion-title>
@@ -114,9 +122,12 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonAlert
 } from '@ionic/vue';
 import axios from 'axios';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { useWebSocket } from '@/composables/useWebSocket';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 const URL_API = import.meta.env.VITE_URL_API; // API base URL
 
@@ -135,6 +146,8 @@ const detecciones = ref<Deteccion[]>([]);
 const isLoading = ref<boolean>(true); // Indicador de carga
 const isModalOpen = ref<boolean>(false); // Estado del modal
 const detallesDeteccion = ref<Deteccion | undefined>() ; // Datos de la detección seleccionada
+const mostrarAlerta = ref<boolean>(false); // Estado de la alerta
+const mensajeAlerta = ref<string>(''); // Mensaje de la alerta
 
 // Router para logout
 const router = useRouter();
@@ -178,17 +191,47 @@ const cerrarModal = ():void => {
   detallesDeteccion.value = undefined;
 };
 
-let intervalId: ReturnType<typeof setInterval> | null = null;
+
+// Conectar al servidor WebSocket
+const { mensaje } = useWebSocket('ws://152.173.134.179:8080');
+
+
+// Escuchar cambios en el mensaje recibido
+watch(mensaje, async (nuevoMensaje) => {
+  if (nuevoMensaje && nuevoMensaje.tipo === 'nuevaAlerta') {
+    // Agregar la nueva detección al inicio de la lista
+    detecciones.value.push(nuevoMensaje.data);
+    console.log('Nueva detección:', detecciones.value);
+
+    // Mostrar una alerta
+    mensajeAlerta.value = `Nueva detección en la trampa ${nuevoMensaje.data.trampa_id}`;
+    mostrarAlerta.value = true;
+
+    // Mostrar notificación push
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          title: 'Nueva Detección',
+          body: `Se ha registrado una nueva detección en la trampa ${nuevoMensaje.data.trampa_id}`,
+          id: new Date().getTime(),
+        },
+      ],
+    });
+
+  }
+});
+
+//let intervalId: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   fetchDetecciones(); // Llamada inicial
-  intervalId = setInterval(fetchDetecciones, 5000); // Actualizar cada 5 segundos
+  //intervalId = setInterval(fetchDetecciones, 5000); // Actualizar cada 5 segundos
 });
 
 onUnmounted(() => {
-  if (intervalId !== null) {
-    clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
-  }
+  // if (intervalId !== null) {
+  //   clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+  // }
 });
 
 

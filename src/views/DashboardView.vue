@@ -149,7 +149,7 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/vue';
 import axios from 'axios';
 import { onBeforeMount, ref } from 'vue';
-const URL_API = import.meta.env.VITE_URL_API as string;
+const URL_API = import.meta.env.VITE_URL_API;
 
 //Ref number
 const deteccionesTotales = ref<number>(0);
@@ -253,8 +253,16 @@ const fetchData = async (): Promise<void> => {
   }
 };
 
+const getTest = () =>{
+  axios.get(`${URL_API}/detecciones`)
+    .then((response) => {
+      console.log("Test",response.data);
+    });
+}
+
 onBeforeMount(() => {
   fetchData();
+  getTest();
 });
 </script>
 

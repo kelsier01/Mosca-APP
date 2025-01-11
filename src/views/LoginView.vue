@@ -45,7 +45,7 @@ import { useRouter } from 'vue-router';
 import { IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton } from '@ionic/vue';
 import axios from 'axios';
 
-const URL_API = "https://www.mosca.agendafree.cl/api/auth/login";
+const URL_API = import.meta.env.VITE_URL_API;
 const email = ref('');
 const password = ref('');
 const router = useRouter();
@@ -53,7 +53,7 @@ const router = useRouter();
 const login = () => {
   if (email.value && password.value) {
     console.log(`Email: ${email.value}, Password: ${password.value}`);
-    axios.post(URL_API, 
+    axios.post(`${URL_API}/auth/login`, 
     { email: email.value, 
       password: password.value 
     })
