@@ -12,6 +12,11 @@
             <ion-card-title class="card-title">Iniciar Sesión</ion-card-title>
           </ion-card-header>
           <ion-card-content>
+            <!-- Mensaje de error -->
+            <div v-if="errorMensaje" class="error-mensaje">
+              {{ errorMensaje }}
+            </div>
+            
             <ion-item class="input-item">
               <ion-input
                 v-model="email"
@@ -28,42 +33,91 @@
                 class="custom-input"
               ></ion-input>
             </ion-item>
-            <ion-button expand="block" @click="login" class="login-button">
-              Iniciar Sesión
+            <ion-button expand="block" @click="login" class="login-button" :disabled="isLoading">
+              <ion-spinner v-if="isLoading" name="crescent" class="login-spinner"></ion-spinner>
+              <span v-else>Iniciar Sesión</span>
             </ion-button>
           </ion-card-content>
         </ion-card>
       </div>
+      
+      <!-- Alerta de error -->
+      <ion-alert
+        :is-open="mostrarAlerta"
+        header="Error de Acceso"
+        :message="errorMensaje"
+        :buttons="[{text: 'Aceptar', cssClass: 'alert-button-confirm'}]"
+        @didDismiss="mostrarAlerta = false"
+      ></ion-alert>
+      
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-// Manteniendo tu script intacto
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton } from '@ionic/vue';
 import axios from 'axios';
 
-const URL_API = import.meta.env.VITE_URL_API;
-const email = ref('');
-const password = ref('');
+const URL_API:string = import.meta.env.VITE_URL_API;
+const email = ref<string>('');
+const password = ref<string>('');
 const router = useRouter();
+const isLoading = ref<boolean>(false);
+const errorMensaje = ref<string>('');
+const mostrarAlerta = ref<boolean>(false);
 
-const login = () => {
-  if (email.value && password.value) {
-    console.log(`Email: ${email.value}, Password: ${password.value}`);
-    axios.post(`${URL_API}/auth/login`, 
-    { email: email.value, 
-      password: password.value 
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          router.push('/tabs/dashboard');
-        }
-      });
-  } else {
-    alert('Por favor completa ambos campos');
+const login = async () => {
+  // Limpiar mensaje de error previo
+  errorMensaje.value = '';
+  
+  if (!email.value || !password.value) {
+    errorMensaje.value = 'Por favor completa ambos campos';
+    mostrarAlerta.value = true;
+    return;
+  }
+  
+  try {
+    isLoading.value = true;
+    
+    const response = await axios.post(`${URL_API}/auth/login`, {
+      email: email.value,
+      password: password.value
+    });
+    
+    if (response.status === 200 && response.data) {
+      // Login exitoso
+      router.push('/tabs/dashboard');
+    } else {
+      // Respuesta inesperada
+      errorMensaje.value = 'Error al iniciar sesión. Inténtalo nuevamente.';
+      mostrarAlerta.value = true;
+    }
+    
+  } catch (error: any) {
+    console.error('Error de login:', error);
+    
+    // Manejar diferentes tipos de errores
+    if (error.response) {
+      // El servidor respondió con un código de estado fuera del rango 2xx
+      if (error.response.status === 401) {
+        errorMensaje.value = 'Credenciales incorrectas. Verifica tu email y contraseña.';
+      } else if (error.response.status === 404) {
+        errorMensaje.value = 'Usuario no encontrado.';
+      } else {
+        errorMensaje.value = error.response.data?.message || 'Error al iniciar sesión. Inténtalo nuevamente.';
+      }
+    } else if (error.request) {
+      // La solicitud se hizo pero no se recibió respuesta
+      errorMensaje.value = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+    } else {
+      // Error al configurar la solicitud
+      errorMensaje.value = 'Error al procesar la solicitud. Inténtalo más tarde.';
+    }
+    
+    mostrarAlerta.value = true;
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
@@ -126,8 +180,24 @@ const login = () => {
   margin-top: 10px;
 }
 
-.login-button:hover {
+.login-button:hover:not(.button-disabled) {
   background-color: #01261C;
+}
+
+/* Mensaje de error */
+.error-mensaje {
+  color: #ff6b6b;
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  background-color: rgba(255, 107, 107, 0.1);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* Spinner de carga */
+.login-spinner {
+  color: #F2F2F2;
 }
 
 /* Responsivo */

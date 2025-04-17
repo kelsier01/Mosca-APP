@@ -1,104 +1,135 @@
 <template>
-  <!-- Página completa -->
   <ion-page>
     <!-- Header -->
     <ion-header>
       <ion-toolbar class="header-toolbar">
         <ion-title class="header-title">Detecciones</ion-title>
         <ion-buttons slot="end">
-          <ion-button @click="logout">Cerrar Sesión</ion-button>
+          <ion-button fill="clear" color="light" @click="logout">
+            <ion-icon slot="start" :icon="logOutOutline" color="light"/>
+            <span style="color: #ffffff;">Cerrar Sesión</span>
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <!-- Contenido -->
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" class="ion-padding">
       <!-- Alerta de nueva detección -->
       <ion-alert
         :is-open="mostrarAlerta"
+        header="Nueva Detección"
         :message="mensajeAlerta"
-        :buttons="['OK']"
+        :buttons="[{text: 'OK', cssClass: 'alert-button-confirm'}]"
         @didDismiss="mostrarAlerta = false"
       />
 
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Detecciones</ion-title>
-        </ion-toolbar>
-      </ion-header>
-
       <ion-grid>
-        <!-- Mostrar indicador de carga mientras se obtienen las detecciones -->
+
+        <!-- Indicador de carga -->
         <ion-row v-if="isLoading">
           <ion-col size="12" class="loading-indicator">
             <ion-spinner name="dots"></ion-spinner>
+            <p class="loading-text">Cargando detecciones...</p>
           </ion-col>
         </ion-row>
 
-        <!-- Mostrar detecciones si están disponibles -->
+        <!-- Lista de detecciones -->
         <ion-row v-else>
-          <ion-col size="12" size-md="6" size-lg="4" v-for="deteccion in detecciones" :key="deteccion.id">
-            <ion-card class="deteccion-card" @click="abrirModal(deteccion)">
-              <img
-                alt="Imagen de detección"
-                :src="`data:image/jpeg;base64,${deteccion.imagen}`"
-                class="deteccion-image"
-              />
+          <ion-col
+            v-for="deteccion in detecciones" 
+            :key="deteccion.id" 
+            size="12" 
+            size-md="6" 
+            size-lg="4">
+            <ion-card 
+              class="deteccion-card" 
+              @click="abrirModal(deteccion)">
+              <div class="card-image-container">
+                <img
+                  alt="Imagen de detección"
+                  :src="`data:image/jpeg;base64,${deteccion.imagen}`"
+                  class="deteccion-image"
+                />
+                <div class="status-badge" :class="deteccion.estado_deteccion_id ? 'status-active' : 'status-inactive'">
+                  {{ deteccion.estado_deteccion_id ? "Activo" : "Inactivo" }}
+                </div>
+              </div>
               <ion-card-header>
-                <ion-card-title>ID: {{ deteccion.id }}</ion-card-title>
+                <ion-card-title>
+                  <ion-icon :icon="eyeOutline" class="title-icon"></ion-icon>
+                  Detección #{{ deteccion.id }}
+                </ion-card-title>
                 <ion-card-subtitle>{{ formatFecha(deteccion.fecha) }}</ion-card-subtitle>
               </ion-card-header>
               <ion-card-content>
-                <p><strong>Estado:</strong> {{ deteccion.estado_deteccion_id ? "Activo" : "Deshabilitado"  }}</p>
-                <p><strong>Trampa:</strong> {{ deteccion.trampa_id }}</p>
+                <p class="card-info"><ion-icon :icon="appsOutline"></ion-icon> <strong>Trampa:</strong> {{ deteccion.trampa_id }}</p>
               </ion-card-content>
             </ion-card>
           </ion-col>
         </ion-row>
 
-        <!-- Mostrar mensaje si no hay detecciones -->
+        <!-- Sin datos -->
         <ion-row v-if="!isLoading && detecciones.length === 0">
           <ion-col size="12" class="no-data">
+            <ion-icon :icon="alertCircleOutline" size="large"></ion-icon>
+            <h3>Sin detecciones</h3>
             <p>No se encontraron detecciones registradas.</p>
           </ion-col>
         </ion-row>
       </ion-grid>
 
-      <!-- Modal para detalles de detección -->
-      <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarModal">
+      <!-- Modal de detalles -->
+      <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarModal" class="details-modal">
         <ion-header>
           <ion-toolbar>
-            <ion-title>Detalles de la Detección</ion-title>
+            <ion-title>Detección #{{ detallesDeteccion?.id }}</ion-title>
             <ion-buttons slot="end">
-              <ion-button @click="cerrarModal">Cerrar</ion-button>
+              <ion-button @click="cerrarModal">
+                <ion-icon slot="icon-only" :icon="closeOutline"></ion-icon>
+              </ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
-        <ion-content>
-          <div v-if="detallesDeteccion">
-            <img
-              :src="`data:image/jpeg;base64,${detallesDeteccion.imagen}`"
-              alt="Imagen completa"
-              class="modal-image"
-            />
-            <ion-list>
-              <ion-item>
-                <ion-label><strong>ID:</strong></ion-label>
-                <ion-note>{{ detallesDeteccion.id }}</ion-note>
-              </ion-item>
-              <ion-item>
-                <ion-label><strong>Fecha:</strong></ion-label>
-                <ion-note>{{ formatFecha(detallesDeteccion.fecha) }}</ion-note>
-              </ion-item>
-              <ion-item>
-                <ion-label><strong>Estado:</strong></ion-label>
-                <ion-note>{{ detallesDeteccion.estado_deteccion_id ? "Activo" : "Deshabilitado" }}</ion-note>
-              </ion-item>
-              <ion-item>
-                <ion-label><strong>Trampa:</strong></ion-label>
-                <ion-note>{{ detallesDeteccion.trampa_id }}</ion-note>
-              </ion-item>
-            </ion-list>
+        <ion-content class="ion-padding">
+          <div v-if="detallesDeteccion" class="modal-content">
+            <!-- Imagen y badge de estado -->
+            <div class="modal-image-container">
+              <img
+                :src="`data:image/jpeg;base64,${detallesDeteccion.imagen}`"
+                alt="Imagen completa"
+                class="modal-image"
+              />
+              <div class="modal-badge" :class="detallesDeteccion.estado_deteccion_id ? 'status-active' : 'status-inactive'">
+                {{ detallesDeteccion.estado_deteccion_id ? "Activo" : "Inactivo" }}
+              </div>
+            </div>
+            
+            <!-- Información detallada -->
+            <ion-card class="details-card">
+              <ion-card-header>
+                <ion-card-title>Información</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <ion-list lines="none">
+                  <ion-item>
+                    <ion-icon :icon="idCardOutline" slot="start"></ion-icon>
+                    <ion-label position="stacked">ID Registro</ion-label>
+                    <ion-note>{{ detallesDeteccion.id }}</ion-note>
+                  </ion-item>
+                  <ion-item>
+                    <ion-icon :icon="calendarOutline" slot="start"></ion-icon>
+                    <ion-label position="stacked">Fecha Detección</ion-label>
+                    <ion-note>{{ formatFecha(detallesDeteccion.fecha) }}</ion-note>
+                  </ion-item>
+                  <ion-item>
+                    <ion-icon :icon="hardwareChipOutline" slot="start"></ion-icon>
+                    <ion-label position="stacked">Trampa</ion-label>
+                    <ion-note><strong>#</strong>{{ detallesDeteccion.trampa_id }}</ion-note>
+                  </ion-item>
+                </ion-list>
+              </ion-card-content>
+            </ion-card>
           </div>
         </ion-content>
       </ion-modal>
@@ -107,39 +138,24 @@
 </template>
 
 <script setup lang="ts">
-import { IonCol, IonGrid, IonRow, IonModal, IonList, IonItem, IonLabel, IonNote } from '@ionic/vue';
 import { useRouter } from 'vue-router';
-import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButtons,
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
-  IonAlert
-} from '@ionic/vue';
 import axios from 'axios';
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { useWebSocket } from '@/composables/useWebSocket';
+import { ref, onMounted, watch } from 'vue';
+import { useSocketIO } from '@/composables/useSocketIO';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Deteccion } from '@/interfaces/interfaces';
+import { 
+  eyeOutline,
+  alertCircleOutline,
+  closeOutline,
+  calendarOutline,
+  hardwareChipOutline,
+  idCardOutline,
+  logOutOutline,
+  appsOutline
+} from 'ionicons/icons';
 
-const URL_API = import.meta.env.VITE_URL_API; // API base URL
-
-//Inteface
-interface Deteccion {
-  id: number;
-  predio_id: number;
-  trampa_id: number;
-  estado_deteccion_id: number;
-  imagen: string;
-  fecha: string;
-}
+const URL_API:string = import.meta.env.VITE_URL_API; // API base URL
 
 // Manejo de estado
 const detecciones = ref<Deteccion[]>([]);
@@ -169,8 +185,10 @@ const fetchDetecciones = async () => {
   try {
     isLoading.value = true;
     const response = await axios.get(`${URL_API}/detecciones`);
-    detecciones.value = response.data.detecciones || [];
-    console.log('Detecciones:', response.data.detecciones);
+    // Ordenar detecciones por ID de manera descendente (asumiendo que mayor ID = más reciente)
+    const deteccionesOrdenadas: Deteccion[] = response.data.detecciones?.sort((a: Deteccion, b: Deteccion) => b.id - a.id) || [];
+    detecciones.value = deteccionesOrdenadas;
+    console.log('Detecciones:', detecciones.value);
   } catch (error) {
     console.error('Error al obtener las detecciones:', error);
     alert('Hubo un problema al cargar las detecciones. Inténtalo nuevamente.');
@@ -192,8 +210,9 @@ const cerrarModal = ():void => {
 };
 
 
-// Conectar al servidor WebSocket
-const { mensaje } = useWebSocket('ws://152.173.134.179:8080');
+// Conectar al servidor Socket.IO
+const serverAddress = 'wss://ceratitis.duckdns.org'; // URL del servidor Socket.IO
+const { mensaje } = useSocketIO(serverAddress);
 
 
 // Escuchar cambios en el mensaje recibido
@@ -221,73 +240,249 @@ watch(mensaje, async (nuevoMensaje) => {
   }
 });
 
-//let intervalId: ReturnType<typeof setInterval> | null = null;
-
 onMounted(() => {
-  fetchDetecciones(); // Llamada inicial
-  //intervalId = setInterval(fetchDetecciones, 5000); // Actualizar cada 5 segundos
+  fetchDetecciones();
 });
-
-onUnmounted(() => {
-  // if (intervalId !== null) {
-  //   clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
-  // }
-});
-
 
 </script>
 
 <style scoped>
+/* Estilos base */
+:root {
+  --primary-color: #1d5c41;
+  --primary-light: rgba(29, 92, 65, 0.1);
+  --primary-medium: rgba(29, 92, 65, 0.5);
+  --text-dark: #333333;
+  --text-medium: #666666;
+  --text-light: #999999;
+}
+
 /* Encabezado */
 .header-toolbar {
-  --background: #04402A;
+  --background: #1d5c41;
   --color: #ffffff;
 }
 
 .header-title {
-  font-size: 1.4rem;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 /* Indicador de carga */
 .loading-indicator {
-  text-align: center;
-  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.loading-indicator ion-spinner {
+  --color: #1d5c41;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+}
+
+.loading-text {
+  color: var(--text-medium);
+  font-size: 16px;
 }
 
 /* No hay datos */
 .no-data {
-  text-align: center;
-  color: #666;
-  font-size: 1.2rem;
-  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  color: var(--text-medium);
+}
+
+.no-data ion-icon {
+  color: var(--text-light);
+  font-size: 48px;
+  margin-bottom: 1rem;
+}
+
+.no-data h3 {
+  margin: 0.5rem 0;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Search card */
+.search-card {
+  margin: 0 0 16px 0;
+  border-radius: 12px;
 }
 
 /* Card de detección */
 .deteccion-card {
-  width: 100%;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .deteccion-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(29, 92, 65, 0.15);
+}
+
+.card-image-container {
+  position: relative;
+  width: 100%;
 }
 
 .deteccion-image {
   width: 100%;
-  height: 200px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 12px 12px 0 0;
 }
 
-/* Imagen completa en el modal */
+.status-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-active {
+  background-color: #1d5c41;
+}
+
+.status-inactive {
+  background-color: #d14836;
+}
+
+ion-card-header {
+  padding: 16px 16px 8px;
+}
+
+.title-icon {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+ion-card-title {
+  font-weight: 600;
+  color: #1d5c41;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+ion-card-subtitle {
+  color: var(--text-medium);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.card-info {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  color: var(--text-medium);
+}
+
+.card-info ion-icon {
+  font-size: 16px;
+  margin-right: 6px;
+  color: #1d5c41;
+}
+
+/* Modal */
+.details-modal {
+  --border-radius: 16px 16px 0 0;
+}
+
+ion-modal ion-toolbar {
+  --background: #1d5c41;
+  --color: #ffffff;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-image-container {
+  position: relative;
+  width: 100%;
+}
+
 .modal-image {
   width: 100%;
-  height: auto;
   border-radius: 12px;
-  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modal-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.details-card {
+  margin: 0;
+  border-radius: 12px;
+}
+
+ion-item ion-icon {
+  color: #1d5c41;
+  margin-right: 16px;
+}
+
+ion-item ion-label {
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+ion-item ion-note {
+  font-size: 16px;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ion-grid {
+    padding: 12px;
+  }
+  
+  .deteccion-image {
+    height: 160px;
+  }
+  
+  .modal-image {
+    border-radius: 8px;
+  }
 }
 </style>

@@ -52,33 +52,13 @@
 
 <script setup lang="ts">
 import { ref, defineEmits } from 'vue';
-import {
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonModal,
-  IonButton,
-  IonButtons,
-  IonToolbar,
-  IonTitle,
-  IonHeader,
-  IonContent,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonText,
-} from '@ionic/vue';
-
-interface TrampaProps {
+const props = withDefaults(defineProps<{
   modelo: string;
   email: string;
   predio: string;
   macAddress: string;
   coordenadas: string;
-}
-
-const props = withDefaults(defineProps<TrampaProps>(),{
+}>(),{
   modelo: '',
   email: '',
   predio: '',

@@ -1,55 +1,51 @@
 <template>
   <ion-page>
-    <!-- Encabezado -->
     <ion-header>
-      <ion-toolbar class="header-toolbar">
-        <ion-title class="header-title">Dashboard</ion-title>
+      <ion-toolbar>
+        <ion-title>Dashboard</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true" class="dashboard-content">
-      <!-- Encabezado colapsable en móviles -->
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large" class="condense-title">Dashboard</ion-title>
-        </ion-toolbar>
-      </ion-header>
-
-      <ion-grid class="dashboard-grid">
-        <!-- Fila para los contadores -->
-        <ion-row class="dashboard-row">
-          <!-- Carta de Recuento de Detecciones -->
-          <ion-col size="12" size-sm="6" size-md="4" class="dashboard-col">
-            <ion-card class="dashboard-card detections-card">
-              <ion-card-header class="card-header">
-                <ion-card-title class="card-title">Recuento de Detecciones</ion-card-title>
+    <ion-content :fullscreen="true">
+      <ion-grid>
+        <!-- Sección de estadísticas -->
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-card color="light">
+              <ion-card-header>
+                <ion-card-title class="ion-text-center">
+                  <ion-icon :icon="eyeOutline" size="large" />
+                </ion-card-title>
               </ion-card-header>
-              <ion-card-content class="card-content">
-                <p class="card-value">{{ deteccionesTotales }}</p>
+              <ion-card-content class="ion-text-center">
+                <h2>{{ deteccionesTotales }}</h2>
+                <p>Detecciones</p>
               </ion-card-content>
             </ion-card>
           </ion-col>
-
-          <!-- Carta de Funcionarios -->
-          <ion-col size="12" size-sm="6" size-md="4" class="dashboard-col">
-            <ion-card class="dashboard-card employees-card">
-              <ion-card-header class="card-header">
-                <ion-card-title class="card-title">Funcionarios</ion-card-title>
+          <ion-col size="12" size-md="4">
+            <ion-card color="light">
+              <ion-card-header>
+                <ion-card-title class="ion-text-center">
+                  <ion-icon :icon="peopleCircleOutline" size="large" />
+                </ion-card-title>
               </ion-card-header>
-              <ion-card-content class="card-content">
-                <p class="card-value">{{ funcionariosTotales }}</p>
+              <ion-card-content class="ion-text-center">
+                <h2>{{ funcionariosTotales }}</h2>
+                <p>Funcionarios</p>
               </ion-card-content>
             </ion-card>
           </ion-col>
-
-          <!-- Carta de Trampas -->
-          <ion-col size="12" size-sm="6" size-md="4" class="dashboard-col">
-            <ion-card class="dashboard-card traps-card">
-              <ion-card-header class="card-header">
-                <ion-card-title class="card-title">Trampas Operativas</ion-card-title>
+          <ion-col size="12" size-md="4">
+            <ion-card color="light">
+              <ion-card-header>
+                <ion-card-title class="ion-text-center">
+                  <ion-icon :icon="hardwareChipOutline" size="large" />
+                </ion-card-title>
               </ion-card-header>
-              <ion-card-content class="card-content">
-                <p class="card-value">{{ trampasTotales }}</p>
+              <ion-card-content class="ion-text-center">
+                <h2>{{ trampasTotales }}</h2>
+                <p>Trampas Operativas</p>
               </ion-card-content>
             </ion-card>
           </ion-col>
@@ -57,85 +53,85 @@
 
         <!-- Tablas de detalles -->
         <ion-row>
-          <!-- Tabla de Detecciones -->
-          <ion-col size="12">
+          <ion-col size="12" size-md="4">
             <ion-card>
               <ion-card-header>
-                <ion-card-title>Lista de Detecciones</ion-card-title>
+                <ion-card-title>
+                  <ion-icon :icon="eyeOutline" />
+                  Detecciones
+                </ion-card-title>
               </ion-card-header>
               <ion-card-content>
-                <table class="classic-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Trampa</th>
-                      <th>Fecha</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="deteccion in detecciones" :key="deteccion.id">
-                      <td>{{ deteccion.id }}</td>
-                      <td>{{ deteccion.trampa_id }}</td>
-                      <td>{{ new Date(deteccion.fecha).toLocaleDateString() }}</td>
-                      <td>{{ deteccion.estado_deteccion_id }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ion-list>
+                  <ion-item
+                    lines="none" 
+                    v-for="deteccion in detecciones" 
+                    :key="deteccion.id"
+                    >
+                    <ion-label>
+                      <h3>ID: {{ deteccion.id }}</h3>
+                      <p>Trampa: <strong>MF1</strong></p>
+                      <p>Fecha: {{ new Date(deteccion.fecha).toLocaleDateString() }}</p>
+                    </ion-label>
+                    <ion-chip :outline="true" :color="deteccion.estado_deteccion_id == 1 ? 'success' : 'danger'">
+                      {{ deteccion.estado_deteccion_id == 1 ? "Detectado" : "Sin Detectar" }}
+                    </ion-chip>
+                  </ion-item>
+                </ion-list>
               </ion-card-content>
             </ion-card>
           </ion-col>
 
-          <!-- Tabla de Funcionarios -->
-          <ion-col size="12">
-            <ion-card>
+          <ion-col size="12" size-md="4">
+            <ion-card color="light">
               <ion-card-header>
-                <ion-card-title>Lista de Funcionarios</ion-card-title>
+                <ion-card-title>
+                  <ion-icon :icon="peopleCircle" /> 
+                  Funcionarios
+                </ion-card-title>
               </ion-card-header>
               <ion-card-content>
-                <table class="classic-table">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>RUT</th>
-                      <th>Rol</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="funcionario in funcionarios" :key="funcionario.id">
-                      <td>{{ funcionario.persona.nombre }} {{ funcionario.persona.apellido }}</td>
-                      <td>{{ funcionario.persona.rut }}</td>
-                      <td>{{ funcionario.rol.nombre }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ion-list>
+                  <ion-item 
+                    v-for="funcionario in funcionarios" 
+                    :key="funcionario.id"
+                    lines="none"
+                    >
+                    <ion-label>
+                      <h3>{{ funcionario.persona?.nombre || 'Sin nombre' }} {{ funcionario.persona?.apellido || '' }}</h3>
+                      <p>RUT: {{ funcionario.persona?.rut || 'No disponible' }}</p>
+                    </ion-label>
+                    <ion-chip color="primary">{{ funcionario.rol?.nombre || 'Sin rol' }}</ion-chip>
+                  </ion-item>
+                </ion-list>
               </ion-card-content>
             </ion-card>
           </ion-col>
 
-          <!-- Tabla de Trampas -->
-          <ion-col size="12">
+          <ion-col size="12" size-md="4">
             <ion-card>
               <ion-card-header>
-                <ion-card-title>Lista de Trampas</ion-card-title>
+                <ion-card-title>
+                  <ion-icon :icon="hardwareChip"/> 
+                  Lista de Trampas
+                </ion-card-title>
               </ion-card-header>
               <ion-card-content>
-                <table class="classic-table">
-                  <thead>
-                    <tr>
-                      <th>Modelo</th>
-                      <th>MAC</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="trampa in trampas" :key="trampa.id">
-                      <td>{{ trampa.modelo }}</td>
-                      <td>{{ trampa.direccion_mac }}</td>
-                      <td>{{ trampa.estado === 1 ? 'Operativa' : 'Inactiva' }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ion-list>
+                  <ion-item 
+                    v-for="trampa in trampas" 
+                    :key="trampa.id"
+                    lines="none"
+                    >
+                    <ion-label>
+                      <h3>{{ trampa.modelo }}</h3>
+                      <p>MAC: {{ trampa.direccion_mac }}</p>
+                    </ion-label>
+                    <ion-chip :color="trampa.estado === 1 ? 'success' : 'danger'">
+                      {{ trampa.estado === 1 ? 'Operativa' : 'Inactiva' }}
+                    </ion-chip>
+                  </ion-item>
+                </ion-list>
               </ion-card-content>
             </ion-card>
           </ion-col>
@@ -146,247 +142,190 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/vue';
+import { Deteccion, Funcionario, Trampa } from '@/interfaces/interfaces';
 import axios from 'axios';
+import { 
+  eyeOutline, 
+  hardwareChip, 
+  hardwareChipOutline, 
+  peopleCircle, 
+  peopleCircleOutline 
+} from 'ionicons/icons';
 import { onBeforeMount, ref } from 'vue';
-const URL_API = import.meta.env.VITE_URL_API;
+const URL_API:string = import.meta.env.VITE_URL_API;
 
 //Ref number
 const deteccionesTotales = ref<number>(0);
 const funcionariosTotales = ref<number>(0);
 const trampasTotales = ref<number>(0);
 
-//Interfaces
-interface Deteccion {
-  id: number;
-  predio_id: number;
-  trampa_id: number;
-  estado_deteccion_id: number;
-  fecha: string;
-  imagen: string;
-}
-
-// Interfaz para la entidad "Funcionario"
-interface Funcionario {
-  estado: number; // Estado del funcionario (activo/inactivo)
-  id: number; // ID único del funcionario
-  persona: Persona; // Información de la persona asociada
-  usuario: Usuario; // Información del usuario asociada
-  rol: Rol; // Información del rol asociado
-  usuario_id: number; // ID del usuario asociado
-  persona_id: number; // ID de la persona asociada
-  rol_id: number; // ID del rol asociado
-}
-
-// Interfaz para la entidad "Persona"
-interface Persona {
-  id: number; // ID único de la persona
-  nombre: string; // Nombre de la persona
-  apellido: string; // Apellido de la persona
-  rut: string; // RUT de la persona (identificación chilena)
-  telefono: string; // Teléfono de la persona
-  estado: number; // Estado de la persona (activo/inactivo)
-}
-
-// Interfaz para la entidad "Usuario"
-interface Usuario {
-  id: number; // ID único del usuario
-  email: string; // Email del usuario
-  password: string; // Contraseña del usuario (encriptada)
-  estado: number; // Estado del usuario (activo/inactivo)
-}
-
-// Interfaz para la entidad "Rol"
-interface Rol {
-  id: number; // ID único del rol
-  nombre: string; // Nombre del rol (e.g., "Administrador")
-  estado: number; // Estado del rol (activo/inactivo)
-}
-
-interface Predio {
-  id: number;
-  duenio_id: number;
-  direccion: string;
-  estado: number;
-}
-
-interface Trampa {
-  id: number;
-  predio_id: number;
-  usuario_id: number;
-  modelo: string;
-  direccion_mac: string;
-  estado: number;
-  coordenadas: string;
-  predio: Predio;
-  usuario: Usuario;
-}
-
-
 // Ref arrays
 const detecciones = ref<Deteccion[]>([]);
 const funcionarios = ref<Funcionario[]>([]);
 const trampas = ref<Trampa[]>([]);
 
-// Llamada a la API para obtener los datos del Dashboard
+// Lógica para colores de estado (ya no se usa getStatusClass, se usa color de badge)
 const fetchData = async (): Promise<void> => {
   try {
     const deteccionesResponse = await axios.get(`${URL_API}/detecciones`);
-    deteccionesTotales.value = deteccionesResponse.data.detecciones.length;
-    detecciones.value = deteccionesResponse.data.detecciones;
-    //Console.log para ver si se obtienen los datos
-    console.log("Detecciones", deteccionesResponse.data.detecciones);
+    const deteccionesOrdenadas = deteccionesResponse.data.detecciones.sort((a: Deteccion, b: Deteccion) => b.id - a.id);
+    deteccionesTotales.value = deteccionesOrdenadas.length;
+    detecciones.value = deteccionesOrdenadas;
 
     const funcionariosResponse = await axios.get(`${URL_API}/funcionarios`);
-    funcionariosTotales.value = funcionariosResponse.data.length;
-    funcionarios.value = funcionariosResponse.data;
-    //Console.log para ver si se obtienen los datos
-    console.log("Funcionarios", funcionariosResponse.data);
+    const funcionariosOrdenados = funcionariosResponse.data.sort(
+      (a: Funcionario, b: Funcionario) => (a.persona?.nombre || '').localeCompare(b.persona?.nombre || '')
+    );
+    funcionariosTotales.value = funcionariosOrdenados.length;
+    funcionarios.value = funcionariosOrdenados;
 
     const trampasResponse = await axios.get(`${URL_API}/trampas`);
-    trampasTotales.value = trampasResponse.data.filter((trampa:any) => trampa.estado === 1).length;
-    trampas.value = trampasResponse.data;
-    //Console.log para ver si se obtienen los datos
-    console.log("Trampas", trampasResponse.data);
+    const trampasOrdenadas = trampasResponse.data.sort(
+      (a: Trampa, b: Trampa) => a.modelo.localeCompare(b.modelo)
+    );
+    trampasTotales.value = trampasOrdenadas.filter((trampa: any) => trampa.estado === 1).length;
+    trampas.value = trampasOrdenadas;
   } catch (error) {
     console.error('Error al obtener los datos del Dashboard:', error);
   }
 };
 
-const getTest = () =>{
-  axios.get(`${URL_API}/detecciones`)
-    .then((response) => {
-      console.log("Test",response.data);
-    });
-}
-
 onBeforeMount(() => {
   fetchData();
-  getTest();
 });
 </script>
 
 <style scoped>
 
-/* Estilos personalizados para las tablas clásicas */
-.classic-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
 
-.classic-table th,
-.classic-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.classic-table th {
-  background-color: #04402A;
-  color: white;
-  font-weight: bold;
-}
-
-.classic-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.classic-table tr:hover {
-  background-color: #ddd;
-}
-
-/* Encabezado */
-.header-toolbar {
-  --background: #04402A;
-  --color: #ffffff;
-}
-
-.header-title {
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-/* Contenido del Dashboard */
-.dashboard-content {
-  --background: #f5f5f5;
-  padding: 1rem;
-}
-
-/* Grid */
-.dashboard-grid {
-  gap: 1rem; /* Espaciado entre columnas */
-}
-
-/* Fila */
-.dashboard-row {
-  justify-content: center; /* Centrar las tarjetas */
-  align-items: stretch; /* Alinear las tarjetas verticalmente */
-}
-
-/* Columna */
-.dashboard-col {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-}
-
-/* Tarjetas */
-.dashboard-card {
-  width: 100%;
+/* Estilos de Cards */
+ion-card {
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background-color: #ffffff;
+  margin-bottom: 16px;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  border: none;
 }
 
-.dashboard-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+ion-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(29, 92, 65, 0.12);
 }
 
-.card-header {
-  background-color: #04402A;
-  padding: 1rem;
-  border-radius: 12px 12px 0 0;
+
+/* Headers de las cards */
+ion-card-header {
+  padding: 16px 16px 8px;
+  border-bottom: none;
 }
 
-.card-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #ffffff;
-  text-align: center;
+ion-card-title {
+  font-weight: 600;
+  color: #1d5c41;
+  display: flex;
+  align-items: center;
 }
 
-.card-content {
-  padding: 1.5rem 1rem;
-  text-align: center;
+/* Contenido de las cards */
+ion-card-content {
+  padding: 16px;
 }
 
-.card-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #04402A;
+/* Iconos */
+ion-icon {
+  color: #1d5c41 !important;
+  margin-right: 8px;
+}
+
+ion-icon[size="large"] {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+/* Tipografía */
+h2 {
+  color: #1d5c41;
+  font-size: 32px;
+  font-weight: 600;
   margin: 0;
+  line-height: 1.2;
 }
 
-/* Colores personalizados por tipo de tarjeta */
-.detections-card {
-  border-left: 4px solid #92A69E;
+h3 {
+  color: #333333;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.employees-card {
-  border-left: 4px solid #e63946;
+p {
+  color: #666666;
+  font-size: 14px;
+  margin-top: 4px;
 }
 
-.traps-card {
-  border-left: 4px solid #f4a261;
+/* Listas */
+ion-list {
+  padding: 0;
+  background: transparent;
 }
 
-/* Responsividad */
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+ion-item:last-child {
+  margin-bottom: 0;
+}
+
+ion-item:hover {
+  --background: rgba(29, 92, 65, 0.04);
+}
+
+/* Badges */
+ion-badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.ion-float-right {
+  margin-left: auto;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .card-value {
-    font-size: 1.5rem;
+  h2 {
+    font-size: 24px;
   }
+  
+  ion-grid {
+    padding: 12px;
+  }
+  
+  ion-icon[size="large"] {
+    font-size: 36px;
+  }
+}
+
+ion-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Animaciones sutiles */
+.ion-text-center h2, 
+.ion-text-center p {
+  transition: transform 0.2s ease;
+}
+
+.ion-text-center:hover h2 {
+  transform: scale(1.05);
 }
 </style>

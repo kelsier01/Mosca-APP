@@ -1,247 +1,287 @@
 <template>
-    <ion-card class="content-card" @click="abrirModal">
-      <ion-card-header class="card-header">
-        <ion-icon aria-hidden="true" :icon="home" class="person-icon" />
-        <ion-card-title class="card-title">{{ direccion }}</ion-card-title>
-        <ion-card-subtitle class="card-subtitle">{{ `${nombre} ${apellido}` }}</ion-card-subtitle>
-      </ion-card-header>
+  <ion-card class="predio-card">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon :icon="homeOutline" class="title-icon"></ion-icon>
+        {{ direccion }}
+      </ion-card-title>
+      <ion-card-subtitle>{{ `${nombre} ${apellido}` }}</ion-card-subtitle>
+    </ion-card-header>
+    
+    <ion-card-content>
+      <p class="card-info">
+        <ion-icon :icon="mailOutline"></ion-icon> 
+        <strong>Email:</strong> {{ email || 'No disponible' }}
+      </p>
+      <p class="card-info">
+        <ion-icon :icon="callOutline"></ion-icon> 
+        <strong>Teléfono:</strong> {{ telefono }}
+      </p>
       
-      <!-- Modal para ver detalles del funcionario -->
-      <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarModal">
-        <ion-header>
-          <ion-toolbar class="modal-toolbar">
-            <ion-title class="modal-title">Detalles del predio</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="cerrarModal" class="close-button">Cerrar</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-  
-        <ion-content class="modal-content">
-          <ion-list class="details-list">
-            <ion-item class="detail-item">
-              <ion-label>Rut del propietario</ion-label>
-              <ion-text>{{ `${rut}` }}</ion-text>
-            </ion-item>
-  
-            <ion-item class="detail-item">
-              <ion-label>Nombre del propietario</ion-label>
-              <ion-text>{{ nombre }}</ion-text>
-            </ion-item>
-            
-            <ion-item class="detail-item">
-              <ion-label>Apellido del propietario</ion-label>
-              <ion-text>{{ apellido }}</ion-text>
-            </ion-item>
-  
-            <ion-item class="detail-item">
-              <ion-label>Telefono</ion-label>
-              <ion-text>{{ telefono }}</ion-text>
-            </ion-item>
+      <ion-button 
+        expand="block" 
+        fill="clear" 
+        size="small"
+        class="details-button" 
+        @click="abrirModal"
+      >
+        <ion-icon :icon="eyeOutline" slot="start"></ion-icon>
+        Ver detalles
+      </ion-button>
+    </ion-card-content>
+    
+    <!-- Modal para ver detalles del predio -->
+    <ion-modal :is-open="isModalOpen" @ionModalDidDismiss="cerrarModal" class="details-modal">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Detalles del Predio</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="cerrarModal">
+              <ion-icon slot="icon-only" :icon="closeOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
 
-            <ion-item class="detail-item">
-              <ion-label>Correo electronico</ion-label>
-              <ion-text>{{ email ? email : "N/A" }}</ion-text>
-            </ion-item>
+      <ion-content class="ion-padding">
+        <!-- Información del predio -->
+        <ion-card class="details-card">
+          <ion-card-header>
+            <ion-card-title class="section-title">
+              <ion-icon :icon="homeOutline"></ion-icon>
+              Información del Predio
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="none">
+              <ion-item>
+                <ion-icon :icon="locationOutline" slot="start"></ion-icon>
+                <ion-label position="stacked">Dirección</ion-label>
+                <ion-note>{{ direccion }}</ion-note>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+        
+        <!-- Información del propietario -->
+        <ion-card class="details-card">
+          <ion-card-header>
+            <ion-card-title class="section-title">
+              <ion-icon :icon="personOutline"></ion-icon>
+              Información del Propietario
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="none">
+              <ion-item>
+                <ion-icon :icon="personOutline" slot="start"></ion-icon>
+                <ion-label position="stacked">Nombre completo</ion-label>
+                <ion-note>{{ `${nombre} ${apellido}` }}</ion-note>
+              </ion-item>
 
-            <ion-item class="detail-item">
-              <ion-label>Direccion del predio</ion-label>
-              <ion-text>{{ direccion }}</ion-text>
-            </ion-item>
+              <ion-item>
+                <ion-icon :icon="idCardOutline" slot="start"></ion-icon>
+                <ion-label position="stacked">RUT</ion-label>
+                <ion-note>{{ rut }}</ion-note>
+              </ion-item>
 
-          </ion-list>
-  
-          <!-- Botones de acción -->
-          <ion-button expand="full" color="danger" @click="deshabilitarTrampa" class="action-button">
-            Deshabilitar
+              <ion-item>
+                <ion-icon :icon="mailOutline" slot="start"></ion-icon>
+                <ion-label position="stacked">Email</ion-label>
+                <ion-note>{{ email || 'No disponible' }}</ion-note>
+              </ion-item>
+              
+              <ion-item>
+                <ion-icon :icon="callOutline" slot="start"></ion-icon>
+                <ion-label position="stacked">Teléfono</ion-label>
+                <ion-note>{{ telefono }}</ion-note>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+          <ion-button 
+            expand="block" 
+            color="danger" 
+            fill="outline" 
+            @click="deshabilitarPredio"
+            class="action-button"
+          >
+            <ion-icon :icon="trashOutline" slot="start"></ion-icon>
+            Deshabilitar predio
           </ion-button>
-        </ion-content>
-      </ion-modal>
-    </ion-card>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref } from 'vue';
-  import {
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonModal,
-    IonButton,
-    IonButtons,
-    IonToolbar,
-    IonTitle,
-    IonHeader,
-    IonContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonText,
-    IonIcon,
-  } from '@ionic/vue';
+        </div>
+      </ion-content>
+    </ion-modal>
+  </ion-card>
+</template>
 
-  import { home } from 'ionicons/icons';
+<script setup lang="ts">
+import { ref } from 'vue';
+import {
+  homeOutline,
+  personOutline,
+  mailOutline,
+  callOutline,
+  eyeOutline,
+  closeOutline,
+  idCardOutline,
+  trashOutline,
+  locationOutline,
+} from 'ionicons/icons';
 
-  //Interface
-  interface PrediosProps {
-    direccion: string;
-    rut: string;
-    usuario_id: string;
-    nombre: string;
-    apellido: string;
-    telefono: string;
-    email: string;
-  }
-  //Props
-  const props = withDefaults(defineProps<PrediosProps>(),{
-    direccion: '',
-    rut: '',
-    usuario_id: '',
-    nombre: '',
-    apellido: '',
-    telefono: '',
-    email: '',
-  });
-  
-  const isModalOpen = ref<boolean>(false);
-  
-  const abrirModal = (): void => {
-    isModalOpen.value = true;
-  };
-  
-  const cerrarModal = (): void => {
-    isModalOpen.value = false;
-  };
-  
-  const deshabilitarTrampa = (): void => {
-    console.log('Deshabilitando trampa:', { nombre: props.nombre });
-    cerrarModal();
-  };
-  
-  // const vincularFuncionario = () => {
-  //   console.log('Vinculando trampa con funcionario:', { nombre: props.nombre });
-  // };
-  </script>
-  
+//Interface
+interface PrediosProps {
+  direccion: string;
+  rut: string;
+  usuario_id: string | number | null; // Modificado para aceptar string, number o null
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  email: string;
+}
+
+//Props
+withDefaults(defineProps<PrediosProps>(),{
+  direccion: '',
+  rut: '',
+  usuario_id: '', // Valor por defecto como string vacío
+  nombre: '',
+  apellido: '',
+  telefono: '',
+  email: '',
+});
+
+const emit = defineEmits(['deshabilitarPredio']);
+const isModalOpen = ref<boolean>(false);
+
+const abrirModal = (): void => {
+  isModalOpen.value = true;
+};
+
+const cerrarModal = (): void => {
+  isModalOpen.value = false;
+};
+
+const deshabilitarPredio = (): void => {
+  emit('deshabilitarPredio');
+  cerrarModal();
+};
+</script>
+
 <style scoped>
-  /* Tarjeta principal */
-  .content-card {
-    max-width: 320px;
-    margin: 1rem auto;
-    cursor: pointer;
-    border-radius: 12px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .content-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Encabezado de la tarjeta */
-  .card-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 1.5rem;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  .person-icon {
-    font-size: 4rem;
-    color: #04402A;
-    margin-bottom: 1rem;
-  }
-  
-  .card-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #04402A;
-    margin: 0.5rem 0;
-  }
-  
-  .card-subtitle {
-    font-size: 0.9rem;
-    color: #92A69E;
-  }
-  
-  /* Modal */
-  .modal-toolbar {
-    --background: #04402A;
-    --color: #ffffff;
-  }
-  
-  .modal-title {
-    font-size: 1.4rem;
-    font-weight: bold;
-  }
-  
-  .close-button {
-    --color: #ffffff;
-  }
-  
-  .modal-content {
-    padding: 1rem;
-    background-color: #f9f9f9;
-  }
-  
-  .details-list {
-    margin: 0;
-    padding: 0;
-  }
-  
-  .detail-item {
-    --inner-padding-start: 10px;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  /* Botones de acción */
-  .action-button {
-    margin-top: 1rem;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-  }
-  
-  .action-button:first-of-type {
-    --background: #e63946;
-  }
-  
-  .action-button:first-of-type:hover {
-    --background: #b92a3a;
-  }
-  
-  .action-button:last-of-type {
-    --background: #04402A;
-  }
-  
-  .action-button:last-of-type:hover {
-    --background: #01261C;
-  }
-  
-  /* Responsividad */
-  @media (min-width: 768px) {
-    .content-card {
-      max-width: 400px;
-    }
-  
-    .modal-title {
-      font-size: 1.6rem;
-    }
-  
-    .detail-item {
-      font-size: 1rem;
-    }
-  
-    .action-button {
-      font-size: 1.1rem;
-    }
-  }
+/* Tarjeta del predio */
+.predio-card {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.predio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(29, 92, 65, 0.15);
+}
+
+ion-card-header {
+  padding: 16px 16px 8px;
+}
+
+.title-icon {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+ion-card-title {
+  font-weight: 600;
+  color: #1d5c41;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+ion-card-subtitle {
+  color: #666666;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.card-info {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  color: #666666;
+}
+
+.card-info ion-icon {
+  font-size: 16px;
+  margin-right: 8px;
+  color: #1d5c41;
+}
+
+.details-button {
+  margin-top: 12px;
+  --color: #1d5c41;
+}
+
+/* Modal de detalles */
+.details-modal {
+  --border-radius: 16px 16px 0 0;
+}
+
+ion-modal ion-toolbar {
+  --background: #1d5c41;
+  --color: #ffffff;
+}
+
+.details-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+}
+
+.details-card:last-of-type {
+  margin-bottom: 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: #1d5c41;
+}
+
+.section-title ion-icon {
+  margin-right: 8px;
+}
+
+ion-item ion-icon {
+  color: #1d5c41;
+}
+
+ion-item ion-label {
+  color: #333333;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+ion-item ion-note {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.action-buttons {
+  margin-top: 24px;
+}
+
+.action-button {
+  --border-color: #d14836;
+  --color: #d14836;
+}
 </style>
-  
