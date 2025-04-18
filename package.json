@@ -24,9 +24,10 @@
     "@ionic/vue-router": "^8.0.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
+    "firebase": "^11.6.0",
     "ionicons": "^7.0.0",
     "leaflet": "^1.9.4",
-    "pinia": "^2.2.4",
+    "pinia": "^2.3.1",
     "socket.io-client": "^4.8.1",
     "vue": "^3.3.0",
     "vue-router": "^4.2.0"

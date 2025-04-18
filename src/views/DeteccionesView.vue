@@ -141,9 +141,9 @@
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
-import { useSocketIO } from '@/composables/useSocketIO';
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { onIonViewWillEnter } from '@ionic/vue';
 import { Deteccion } from '@/interfaces/interfaces';
+import { useDeteccionesStore } from '@/composables/deteccionesStore';
 import { 
   eyeOutline,
   alertCircleOutline,
@@ -156,6 +156,7 @@ import {
 } from 'ionicons/icons';
 
 const URL_API:string = import.meta.env.VITE_URL_API; // API base URL
+const deteccionesStore = useDeteccionesStore();
 
 // Manejo de estado
 const detecciones = ref<Deteccion[]>([]);
@@ -209,41 +210,23 @@ const cerrarModal = ():void => {
   detallesDeteccion.value = undefined;
 };
 
-
-// Conectar al servidor Socket.IO
-const serverAddress = 'wss://ceratitis.duckdns.org'; // URL del servidor Socket.IO
-const { mensaje } = useSocketIO(serverAddress);
-
-
-// Escuchar cambios en el mensaje recibido
-watch(mensaje, async (nuevoMensaje) => {
-  if (nuevoMensaje && nuevoMensaje.tipo === 'nuevaAlerta') {
-    // Agregar la nueva detección al inicio de la lista
-    detecciones.value.push(nuevoMensaje.data);
-    console.log('Nueva detección:', detecciones.value);
-
-    // Mostrar una alerta
-    mensajeAlerta.value = `Nueva detección en la trampa ${nuevoMensaje.data.trampa_id}`;
-    mostrarAlerta.value = true;
-
-    // Mostrar notificación push
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          title: 'Nueva Detección',
-          body: `Se ha registrado una nueva detección en la trampa ${nuevoMensaje.data.trampa_id}`,
-          id: new Date().getTime(),
-        },
-      ],
-    });
-
+// Observar cambios en debeActualizarLista del store
+watch(() => deteccionesStore.debeActualizarLista, (valor) => {
+  if (valor) {
+    fetchDetecciones();
+    deteccionesStore.resetActualizacionLista();
   }
 });
 
-onMounted(() => {
+// Actualizar las detecciones cada vez que la vista aparezca
+onIonViewWillEnter(() => {
   fetchDetecciones();
 });
 
+// Cargar datos iniciales
+onMounted(() => {
+  fetchDetecciones();
+});
 </script>
 
 <style scoped>
